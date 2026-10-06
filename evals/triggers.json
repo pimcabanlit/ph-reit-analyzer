@@ -1,0 +1,30 @@
+{
+  "skill": "ph-reit-analyst",
+  "target_trigger_rate": 0.9,
+  "should_trigger": [
+    "Run a quarterly review on data/raw/areit/2026-Q1-17Q.pdf",
+    "Is AREIT's dividend safe based on its Q1 2026 report? The file is in data/raw/areit/.",
+    "Safe ba ang dividend ng AREIT ngayong quarter? Nasa data/raw/areit/2026-Q1-17Q.pdf yung report.",
+    "Can you compute FFO and AFFO for RCR from its latest 17-Q?",
+    "I uploaded MREIT's quarterly report. Is the payout actually covered by cash?",
+    "How dependent is DDMPR on its sponsor? Here's the 17-A.",
+    "Explain this FILRT quarterly report to me like I'm new to investing.",
+    "What's the NAV per share of CREIT based on this filing?",
+    "Is VREIT's earnings quality good or is it mostly fair value gains?",
+    "Sustainable ba yung dividend ng Citicore REIT? May 17-Q ako dito.",
+    "Check if Ayala's REIT is paying out more than it earns this quarter."
+  ],
+  "should_not_trigger": [
+    "What's the weather in Manila today?",
+    "What is SM Prime's dividend yield?",
+    "Explain how US REITs like Realty Income pay monthly dividends.",
+    "What's AREIT's share price right now?",
+    "Should I buy MREIT or keep my money in a time deposit?",
+    "Help me write a Python script that parses CSV files.",
+    "Summarize this BDO annual report.",
+    "What is a REIT? Give me a general definition.",
+    "Compare Singapore REITs CapitaLand Integrated and Mapletree Pan Asia.",
+    "How do I file my BIR income tax return?"
+  ],
+  "notes": "Should-trigger includes paraphrases, Filipino/Taglish, and company names instead of tickers. Should-not-trigger covers non-REIT PH stocks, foreign REITs, live prices, buy/sell advice and generic REIT definitions. 'Should I buy MREIT' is borderline: the description excludes buy/sell advice, so not triggering is the expected behavior."
+}
