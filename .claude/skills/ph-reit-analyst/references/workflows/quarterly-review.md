@@ -62,6 +62,17 @@ Rules:
 - The same figure often appears in several places; extract from the primary
   statement and use the others as cross-checks.
 
+Each fact's `label` must be exact text from its page (the line item name, or
+a short phrase printed next to the value) so a reader can search the PDF for
+it; put the column header in `column` and any explanation in `note`. Then
+confirm every label and value is really on its cited page:
+
+```bash
+python <skill-dir>/scripts/check_citations.py data/facts/<ticker>/<period_label>.facts.json
+```
+
+Fix every FAIL (usually a paraphrased label or a wrong page) and run it again.
+
 ## 3. Validate and compute
 
 ```bash

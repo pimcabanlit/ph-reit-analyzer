@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Check results against a known-correct eval case.
 
-Three levels:
+Four levels:
   1. Analysis: metrics, checks and flags computed from facts vs expected answers.
   2. Extraction (only with --facts): each extracted fact vs the gold facts file.
-  3. Report (with --report, or the case's gold_report): the report passes
+  3. Citations (when the case's input_pdf exists): every label and value is on
+     its cited page (check_citations.py).
+  4. Report (with --report, or the case's gold_report): the report passes
      check_report.py against the computed metrics.
 
 Usage:
@@ -21,6 +23,7 @@ from pathlib import Path
 
 SKILL_SCRIPTS = Path(__file__).resolve().parent.parent / ".claude" / "skills" / "ph-reit-analyst" / "scripts"
 sys.path.insert(0, str(SKILL_SCRIPTS))
+from check_citations import check as check_citations  # noqa: E402
 from check_report import check as check_report  # noqa: E402
 from compute_metrics import compute  # noqa: E402
 from validate_facts import validate  # noqa: E402
@@ -58,6 +61,21 @@ def compare_extraction(facts_doc, gold_doc):
     else:
         rows.append(("PASS", "meta accounting_model", gold_doc["meta"]["accounting_model"]))
     return rows
+
+
+def citation_rows(facts_doc, pdf_path):
+    if not pdf_path.exists():
+        return [("SKIP", "citations", f"{pdf_path} not in the repo")]
+    try:
+        import pdfplumber
+    except ImportError:
+        return [("SKIP", "citations", "pdfplumber not installed")]
+    with pdfplumber.open(pdf_path) as pdf:
+        def page_text(index):
+            if index < 1 or index > len(pdf.pages):
+                raise IndexError(index)
+            return pdf.pages[index - 1].extract_text() or ""
+        return [(s, f"cite {name}", d) for s, name, d in check_citations(facts_doc, page_text)]
 
 
 def compare_analysis(result, case):
@@ -108,6 +126,7 @@ def main():
     else:
         if args.facts:
             rows += compare_extraction(facts_doc, gold_doc)
+        rows += citation_rows(facts_doc, Path(case["input_pdf"]))
         result = compute(facts_doc)
         rows += compare_analysis(result, case)
         report_path = args.report or (Path(case["gold_report"]) if case.get("gold_report") else None)
@@ -120,7 +139,8 @@ def main():
     fails = sum(r[0] == "FAIL" for r in rows)
     warns = sum(r[0] == "WARN" for r in rows)
     passes = sum(r[0] == "PASS" for r in rows)
-    print(f"\n{passes} passed, {fails} failed, {warns} warnings")
+    skips = sum(r[0] == "SKIP" for r in rows)
+    print(f"\n{passes} passed, {fails} failed, {warns} warnings" + (f", {skips} skipped" if skips else ""))
     return 1 if fails else 0
 
 

@@ -27,187 +27,45 @@
     "notes": "Year-to-date (six months) basis: the 17-Q reports cash flows and distributable income for six months only. All income statement values use the 'January 1 to June 30, 2026' column. Judgement calls to verify: Q1 dividend share count (pre-issuance), total_debt excludes lease liability, straight-line adjustment taken from the distributable income computation."
   },
   "facts": {
-    "net_income": {
-      "value": 5615331594,
-      "page": 7,
-      "label": "NET INCOME (January 1 to June 30, 2026)"
-    },
-    "total_revenue": {
-      "value": 7715974906,
-      "page": 7,
-      "label": "REVENUE (total, January 1 to June 30, 2026)"
-    },
-    "rental_income": {
-      "value": 4734950011,
-      "page": 7,
-      "label": "Rental income"
-    },
-    "finance_lease_interest_income": {
-      "value": 1876926711,
-      "page": 7,
-      "label": "Interest income from finance lease receivables",
-      "note": "Non-cash per Note 16 (p.21)."
-    },
-    "fair_value_change": {
-      "value": -214239117,
-      "page": 7,
-      "label": "Net fair value change in investment properties"
-    },
-    "depreciation_amortization": {
-      "value": 231092,
-      "page": 9,
-      "label": "Depreciation and amortization",
-      "note": "Property and equipment only; investment property is at fair value."
-    },
-    "straight_line_rent_adjustment": {
-      "value": 214239117,
-      "page": 18,
-      "label": "Straight-line adjustments recorded in rental income",
-      "note": "From the distributable income computation; equals the fair value loss to the peso, as in Q1."
-    },
-    "capex_investment_property": {
-      "value": 96355409,
-      "page": 9,
-      "label": "Payments for additions to investment properties"
-    },
-    "operating_cash_flow": {
-      "value": 5530736677,
-      "page": 9,
-      "label": "Net cash flows provided by (used in) operating activities"
-    },
-    "dividends_paid": {
-      "value": 4607537641,
-      "page": 9,
-      "label": "Payments of dividends",
-      "note": "Q4 2025 and Q1 2026 dividends, paid March 19 and June 11, 2026 (p.18)."
-    },
-    "change_due_from_related_parties": {
-      "value": -685950000,
-      "page": 9,
-      "label": "Decrease (increase) in due from related parties"
-    },
-    "total_assets": {
-      "value": 168800603083,
-      "page": 6,
-      "label": "Total assets"
-    },
-    "total_liabilities": {
-      "value": 12503935816,
-      "page": 6,
-      "label": "Total liabilities"
-    },
-    "total_equity": {
-      "value": 156296667267,
-      "page": 6,
-      "label": "Total equity"
-    },
-    "total_debt": {
-      "value": 2000000000,
-      "page": 6,
-      "label": "Short-term debt",
-      "note": "No long-term debt. Excludes the lease liability (P1,316.6M), consistent with the company's debt-to-equity formula on p.27."
-    },
-    "cash": {
-      "value": 30868040,
-      "page": 6,
-      "label": "Cash and cash equivalents"
-    },
-    "accrued_rent_receivable": {
-      "value": 936515724,
-      "page": 13,
-      "label": "Accrued receivables (June 30, 2026)"
-    },
-    "accrued_rent_receivable_prior": {
-      "value": 722276607,
-      "page": 13,
-      "label": "Accrued receivables (December 31, 2025)"
-    },
-    "finance_lease_receivable": {
-      "value": 55414609027,
-      "page": 13,
-      "label": "Finance lease receivables (June 30, 2026)",
-      "note": "Increase is mostly the P19,475,962,612 of mall properties moved to finance lease (p.15)."
-    },
-    "finance_lease_receivable_prior": {
-      "value": 35086452638,
-      "page": 13,
-      "label": "Finance lease receivables (December 31, 2025)"
-    },
-    "shares_outstanding": {
-      "value": 4156887818,
-      "page": 4,
-      "label": "Common shares issued and outstanding (June 30, 2026)",
-      "note": "Also p.17."
-    },
-    "shares_outstanding_prior": {
-      "value": 3715756162,
-      "page": 17,
-      "label": "Outstanding shares (December 31, 2025)",
-      "note": "441,131,656 new shares issued June 25, 2026 for Ayala Center Cebu Mall and Ayala Malls Feliz (p.17-18)."
-    },
-    "reported_distributable_income": {
-      "value": 5615331594,
-      "page": 18,
-      "label": "Distributable income (June 30, 2026)"
-    },
-    "mdna_net_income_before_fv_change": {
-      "value": 5829570000,
-      "page": 22,
-      "label": "Net income before the net fair value change (P5,829.57 million)",
-      "rounded": true
-    },
-    "reported_nav_per_share": {
-      "value": 37.6,
-      "page": 27,
-      "label": "Net asset value (NAV) per share"
-    },
-    "sponsor_ownership_pct": {
-      "value": 58.94,
-      "page": 11,
-      "label": "Collectively owned by Ayala Land, Inc. and its subsidiaries"
-    }
+    "net_income": {"value": 5615331594, "page": 7, "label": "NET INCOME", "column": "January 1 to June 30, 2026"},
+    "total_revenue": {"value": 7715974906, "page": 7, "label": "REVENUE", "column": "January 1 to June 30, 2026", "note": "Unlabeled total line under the REVENUE heading; also 'Total revenue' in the MD&A table on p.22."},
+    "rental_income": {"value": 4734950011, "page": 7, "label": "Rental income", "column": "January 1 to June 30, 2026"},
+    "finance_lease_interest_income": {"value": 1876926711, "page": 7, "label": "Interest income from finance lease receivables", "note": "Non-cash per Note 16 (p.21).", "column": "January 1 to June 30, 2026"},
+    "fair_value_change": {"value": -214239117, "page": 7, "label": "Net fair value change in investment properties", "column": "January 1 to June 30, 2026"},
+    "depreciation_amortization": {"value": 231092, "page": 9, "label": "Depreciation and amortization", "note": "Property and equipment only; investment property is at fair value.", "column": "January 1 to June 30, 2026"},
+    "straight_line_rent_adjustment": {"value": 214239117, "page": 18, "label": "Straight-line adjustments recorded in rental income", "note": "From the distributable income computation; equals the fair value loss to the peso, as in Q1.", "column": "June 30, 2026"},
+    "capex_investment_property": {"value": 96355409, "page": 9, "label": "Payments for additions to investment properties", "column": "January 1 to June 30, 2026"},
+    "operating_cash_flow": {"value": 5530736677, "page": 9, "label": "Net cash flows provided by (used in) operating activities", "column": "January 1 to June 30, 2026"},
+    "dividends_paid": {"value": 4607537641, "page": 9, "label": "Payments of dividends", "note": "Q4 2025 and Q1 2026 dividends, paid March 19 and June 11, 2026 (p.18).", "column": "January 1 to June 30, 2026"},
+    "change_due_from_related_parties": {"value": -685950000, "page": 9, "label": "Decrease (increase) in due from related parties", "column": "January 1 to June 30, 2026"},
+    "total_assets": {"value": 168800603083, "page": 6, "label": "Total assets", "column": "June 30, 2026"},
+    "total_liabilities": {"value": 12503935816, "page": 6, "label": "Total liabilities", "column": "June 30, 2026"},
+    "total_equity": {"value": 156296667267, "page": 6, "label": "Total equity", "column": "June 30, 2026"},
+    "total_debt": {"value": 2000000000, "page": 6, "label": "Short-term debt", "note": "No long-term debt. Excludes the lease liability (P1,316.6M), consistent with the company's debt-to-equity formula on p.27.", "column": "June 30, 2026"},
+    "cash": {"value": 30868040, "page": 6, "label": "Cash and cash equivalents", "column": "June 30, 2026"},
+    "accrued_rent_receivable": {"value": 936515724, "page": 13, "label": "Accrued receivables", "column": "June 30, 2026"},
+    "accrued_rent_receivable_prior": {"value": 722276607, "page": 13, "label": "Accrued receivables", "column": "December 31, 2025"},
+    "finance_lease_receivable": {"value": 55414609027, "page": 13, "label": "Finance lease receivables", "note": "Increase is mostly the P19,475,962,612 of mall properties moved to finance lease (p.15).", "column": "June 30, 2026"},
+    "finance_lease_receivable_prior": {"value": 35086452638, "page": 13, "label": "Finance lease receivables", "column": "December 31, 2025"},
+    "shares_outstanding": {"value": 4156887818, "page": 4, "label": "Common shares", "note": "Also p.17.", "column": "Number of shares issued and outstanding, as of June 30, 2026"},
+    "shares_outstanding_prior": {"value": 3715756162, "page": 17, "label": "Outstanding shares", "note": "441,131,656 new shares issued June 25, 2026 for Ayala Center Cebu Mall and Ayala Malls Feliz (p.17-18).", "column": "December 31, 2025"},
+    "reported_distributable_income": {"value": 5615331594, "page": 18, "label": "Distributable income", "column": "June 30, 2026"},
+    "mdna_net_income_before_fv_change": {"value": 5829570000, "page": 22, "label": "5,829.57 million", "rounded": true, "note": "MD&A: 'Net income before the net fair value change in investment properties grew by 36% ... to P5,829.57 million in 6M 2026'."},
+    "reported_nav_per_share": {"value": 37.6, "page": 27, "label": "Net asset value (NAV) per share", "column": "June 30, 2026"},
+    "sponsor_ownership_pct": {"value": 58.94, "page": 11, "label": "58.94% collectively owned by Ayala Land"}
   },
   "dividends": [
     {
       "for_period": "2026-Q1",
-      "dividend_per_share": {
-        "value": 0.62,
-        "page": 18,
-        "label": "Cash dividend for Q1 2026 (declared May 13, 2026)"
-      },
-      "shares": {
-        "value": 3715756162,
-        "page": 17,
-        "label": "Outstanding shares before the June 25 issuance",
-        "note": "Record date May 28, 2026, before the new shares were issued; confirmed by the reported total."
-      },
-      "reported_total": {
-        "value": 2303770000,
-        "page": 18,
-        "label": "P2,303.77 million",
-        "rounded": true
-      }
+      "dividend_per_share": {"value": 0.62, "page": 18, "label": "for the first quarter of 2026", "note": "Declared May 13, 2026 at P0.62 per outstanding common share."},
+      "shares": {"value": 3715756162, "page": 17, "label": "Outstanding shares", "note": "Record date May 28, 2026, before the new shares were issued; confirmed by the reported total.", "column": "December 31, 2025"},
+      "reported_total": {"value": 2303770000, "page": 18, "label": "2,303.77 million", "rounded": true}
     },
     {
       "for_period": "2026-Q2",
-      "dividend_per_share": {
-        "value": 0.63,
-        "page": 21,
-        "label": "Cash dividend for Q2 2026 (declared August 10, 2026)",
-        "note": "Events after the reporting date (Note 19); also p.29."
-      },
-      "shares": {
-        "value": 4156887818,
-        "page": 4,
-        "label": "Common shares outstanding (June 30, 2026)",
-        "note": "Record date August 25, 2026; the August 10 share swap still needed SEC approval. Confirmed by the reported total."
-      },
-      "reported_total": {
-        "value": 2618840000,
-        "page": 29,
-        "label": "P2,618.84 million",
-        "rounded": true
-      }
+      "dividend_per_share": {"value": 0.63, "page": 21, "label": "for the second quarter of 2026", "note": "Declared August 10, 2026 at P0.63 per common share (Note 19, Events After Financial Reporting Date); also p.29."},
+      "shares": {"value": 4156887818, "page": 4, "label": "Common shares", "note": "Record date August 25, 2026; the August 10 share swap still needed SEC approval. Confirmed by the reported total.", "column": "Number of shares issued and outstanding, as of June 30, 2026"},
+      "reported_total": {"value": 2618840000, "page": 29, "label": "2,618.84 million", "rounded": true}
     }
   ]
 }

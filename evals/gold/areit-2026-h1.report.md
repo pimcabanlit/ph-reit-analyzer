@@ -12,16 +12,21 @@ This review covers six months because the quarterly report (SEC Form 17-Q) only 
 - **New shares were issued.** The REIT issued 441.1M new shares (11.9% more) on June 25, to Ayala Land and a subsidiary in exchange for Ayala Center Cebu Mall and Ayala Malls Feliz. The Q2 dividend is shared across these extra shares, while the two malls contributed only a few days of income to this period, so the next quarter is a better test of coverage.
 
 ## From earnings to dividend
-| Step | ₱ millions | Source |
+| Step | ₱ millions | Source (page · search phrase · column) |
 |---|---|---|
-| Net income | 5,615.3 | p.7 |
-| ± Fair value change (paper gain/loss) | +214.2 | p.7 |
+| Net income | 5,615.3 | p.7 · "NET INCOME" · January 1 to June 30, 2026 |
+| ± Fair value change (paper gain/loss) | +214.2 | p.7 · "Net fair value change in investment properties" · January 1 to June 30, 2026 |
 | = FFO (funds from operations) | 5,829.6 | computed |
-| − Straight-line rent (booked, not yet collected) | −214.2 | p.18 |
-| − Capex (spending on the buildings) | −96.4 | p.9 |
+| − Straight-line rent (booked, not yet collected) | −214.2 | p.18 · "Straight-line adjustments recorded in rental income" · June 30, 2026 |
+| − Capex (spending on the buildings) | −96.4 | p.9 · "Payments for additions to investment properties" · January 1 to June 30, 2026 |
 | = AFFO (cash earnings after upkeep) | 5,519.0 | computed |
-| Dividends declared for Q1 and Q2 | 4,922.6 | p.18, p.21 |
-| Coverage (AFFO ÷ dividend) | 1.12x | computed |
+| Dividends declared: | | |
+| &nbsp;&nbsp;Q1: ₱0.62 × 3,715,756,162 shares | 2,303.8 | p.18 · "for the first quarter of 2026"; shares: p.17 · "Outstanding shares" · December 31, 2025 |
+| &nbsp;&nbsp;Q2: ₱0.63 × 4,156,887,818 shares | 2,618.8 | p.21 · "for the second quarter of 2026"; shares: p.4 · "Common shares" |
+| = Total dividends for the period | 4,922.6 | computed |
+| Coverage (AFFO ÷ dividends) | 1.12x | computed |
+
+Each dividend uses the share count on its own record date: Q1's (May 28) was before the 441.1M new shares were issued on June 25, Q2's (August 25) was after. The company's own totals, ₱2,303.77 million (p.18) and ₱2,618.84 million (p.29), confirm both.
 
 ## Checks
 - Balance sheet balances: passed

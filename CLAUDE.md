@@ -16,6 +16,7 @@ here; change them there.
   - `SKILL.md`: entry point, critical rules, examples, troubleshooting
   - `references/`: accounting models, PH REIT rules, red flags, report template, workflows
   - `schemas/reit_facts.schema.json`: the contract between extraction and analysis
+  - `scripts/check_citations.py`: confirms every fact's label and value are on its cited PDF page
   - `scripts/validate_facts.py`: checks a facts file (runs automatically before metrics)
   - `scripts/compute_metrics.py`: FFO, AFFO, coverage, NAV, checks, flags
   - `scripts/check_report.py`: checks a finished report against the rules

@@ -8,6 +8,8 @@ Checks:
   4. Every number in the report traces back to metrics.json or the facts file
      (so no number was made up or computed in prose).
   5. Every flag and every non-skipped check has its own line in the report.
+  6. Every source in the earnings-to-dividend table that cites a page also
+     quotes the phrase to search for in the PDF, e.g. p.7 · "NET INCOME".
 
 Usage:
     python <skill-dir>/scripts/check_report.py <report.md> --metrics <metrics.json> --facts <facts.json>
@@ -119,6 +121,12 @@ def check(report, metrics, facts):
     got = bullets(section(report, "## Worth knowing"))
     ok = got >= n_flags
     rows.append(("PASS" if ok else "FAIL", "every flag explained", f"{got} bullets for {n_flags} flags"))
+
+    table = section(report, "## From earnings to dividend")
+    unquoted = [row.split("|")[1].strip() for row in table.splitlines()
+                if row.startswith("|") and re.search(r"p\.\s*\d", row) and not re.search(r"p\.\s*\d+[^|]*[\"“][^\"”|]+[\"”]", row)]
+    rows.append(("FAIL" if unquoted else "PASS", "sources quote a search phrase",
+                 "missing for: " + "; ".join(unquoted) if unquoted else "all page citations quoted"))
 
     n_checks = sum(c["status"] != "skipped" for c in metrics.get("checks", []))
     got = bullets(section(report, "## Checks"))

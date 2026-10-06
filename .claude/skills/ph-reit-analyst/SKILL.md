@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+ and pdfplumber and pymupdf (pip install -r requirements.txt in this folder) to read filing PDFs; the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.3.0
+  version: 0.4.0
 ---
 
 # PH REIT Analyst
@@ -23,8 +23,9 @@ directory.
    values into a facts JSON, then let `scripts/compute_metrics.py` do every
    calculation. If a number is needed that the script doesn't produce, add it
    to the script rather than computing it in prose.
-2. **Every extracted number cites its page.** Use the printed page number and
-   note the PDF page index if it differs. No citation, no entry.
+2. **Every extracted number cites its page and quotes the filing.** Use the
+   printed page number (note the PDF page index if it differs) and an exact
+   phrase from that page that readers can search for. No citation, no entry.
 3. **Flag, don't guess.** Ambiguous, missing or contradictory values get
    `"confidence": "low"` and a note, and are surfaced in the report.
 4. **No buy/sell/hold recommendations.** Describe dividend safety, valuation
@@ -57,15 +58,21 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
 
 1. **Extract** values into `data/facts/<ticker>/<YYYY>-<period>.facts.json`
    following `schemas/reit_facts.schema.json`.
-2. **Validate and compute** in one step. The script refuses to calculate if
+2. **Check citations.** Each `label` must be exact text from the cited page,
+   so readers can search the PDF for it. This confirms every label and value
+   is on its page:
+   ```bash
+   python <skill-dir>/scripts/check_citations.py data/facts/<ticker>/<YYYY>-<period>.facts.json
+   ```
+3. **Validate and compute** in one step. The script refuses to calculate if
    the facts file breaks the schema or lacks page citations:
    ```bash
    python <skill-dir>/scripts/compute_metrics.py data/facts/<ticker>/<YYYY>-<period>.facts.json \
      -o outputs/<ticker>/<YYYY>-<period>/metrics.json
    ```
-3. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
+4. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
    `references/report-template.md` and the wording in `references/red-flags.md`.
-4. **Check the report** and fix every FAIL before handing it over:
+5. **Check the report** and fix every FAIL before handing it over:
    ```bash
    python <skill-dir>/scripts/check_report.py outputs/<ticker>/<YYYY>-<period>/report.md \
      --metrics outputs/<ticker>/<YYYY>-<period>/metrics.json \
@@ -122,6 +129,12 @@ Solution: read those pages visually and mark the values `"confidence": "medium"`
 **`nav_per_share` is empty**
 Cause: the REIT uses the cost model, so equity doesn't reflect appraised values.
 Solution: say NAV needs appraised values from the 17-A; don't estimate it.
+
+**`check_citations.py` says a label is not found**
+Cause: the label paraphrases the filing ("Net income for the half") instead
+of quoting it, or the page is wrong.
+Solution: copy the exact words from the page into `label`; move context such
+as the period into `column` or `note`.
 
 **`check_report.py` says a number is untraced**
 Cause: the number was rounded differently, or computed in prose.

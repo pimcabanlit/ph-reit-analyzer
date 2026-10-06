@@ -49,6 +49,15 @@ class Facts:
         item = self.items.get(key)
         return item.get("page") if item else None
 
+    def source(self, key):
+        """Page, printed label and column, so a reader can find the value in the PDF."""
+        return cite(self.items.get(key))
+
+
+def cite(item):
+    item = item or {}
+    return {"page": item.get("page"), "label": item.get("label"), "column": item.get("column")}
+
 
 def compute(doc):
     f = Facts(doc)
@@ -77,13 +86,25 @@ def compute(doc):
     shares = f.get("shares_outstanding")
     if f.dividends:
         # One entry per declaration, each on its own record-date share count
-        dps = sum(d["dividend_per_share"]["value"] for d in f.dividends)
-        dividend_total = sum(round(d["dividend_per_share"]["value"] * d["shares"]["value"]) for d in f.dividends)
-        dividend_page = ", ".join(str(d["dividend_per_share"]["page"]) for d in f.dividends)
+        breakdown = [{
+            "for_period": d["for_period"],
+            "dividend_per_share": d["dividend_per_share"]["value"],
+            "shares": d["shares"]["value"],
+            "total": round(d["dividend_per_share"]["value"] * d["shares"]["value"]),
+            "dividend_source": cite(d["dividend_per_share"]),
+            "shares_source": cite(d["shares"]),
+        } for d in f.dividends]
     else:
-        dps = f.get("dividend_per_share_declared")
-        dividend_total = round(dps * shares)
-        dividend_page = f.page("dividend_per_share_declared")
+        breakdown = [{
+            "for_period": f.meta.get("period_label"),
+            "dividend_per_share": f.get("dividend_per_share_declared"),
+            "shares": shares,
+            "total": round(f.get("dividend_per_share_declared") * shares),
+            "dividend_source": f.source("dividend_per_share_declared"),
+            "shares_source": f.source("shares_outstanding"),
+        }]
+    dps = sum(b["dividend_per_share"] for b in breakdown)
+    dividend_total = sum(b["total"] for b in breakdown)
     coverage = affo / dividend_total if dividend_total else None
 
     di = f.get("reported_distributable_income", required=False)
@@ -105,6 +126,7 @@ def compute(doc):
         "affo": affo,
         "dividend_declared_total": dividend_total,
         "dividend_per_share_for_period": dps,
+        "dividend_breakdown": breakdown,
         "affo_coverage": coverage,
         "payout_of_distributable_income": payout_di,
         "nav_per_share": nav_per_share,
@@ -125,19 +147,28 @@ def compute(doc):
     metrics["safety_light"] = light
 
     bridge = [
-        {"step": "Net income", "value": net_income, "page": f.page("net_income")},
+        {"step": "Net income", "value": net_income, **f.source("net_income")},
     ]
     if model == "fair_value":
-        bridge.append({"step": "Remove fair value change", "value": -f.get("fair_value_change"), "page": f.page("fair_value_change")})
+        bridge.append({"step": "Remove fair value change", "value": -f.get("fair_value_change"), **f.source("fair_value_change")})
     else:
-        bridge.append({"step": "Add back real estate depreciation", "value": f.get("real_estate_depreciation"), "page": f.page("real_estate_depreciation")})
+        bridge.append({"step": "Add back real estate depreciation", "value": f.get("real_estate_depreciation"), **f.source("real_estate_depreciation")})
     bridge += [
         {"step": "FFO", "value": ffo, "page": None, "subtotal": True},
-        {"step": "Less straight-line rent", "value": -straight_line, "page": f.page("straight_line_rent_adjustment")},
-        {"step": "Less capex", "value": -capex, "page": f.page("capex_investment_property")},
+        {"step": "Less straight-line rent", "value": -straight_line, **f.source("straight_line_rent_adjustment")},
+        {"step": "Less capex", "value": -capex, **f.source("capex_investment_property")},
         {"step": "AFFO", "value": affo, "page": None, "subtotal": True},
-        {"step": "Dividend declared for the period", "value": dividend_total, "page": dividend_page, "comparison": True},
     ]
+    if len(breakdown) == 1:
+        b = breakdown[0]
+        bridge.append({"step": "Dividend declared for the period", "value": dividend_total, **b["dividend_source"], "comparison": True})
+    else:
+        # Show how the combined dividend is built, one row per declaration
+        for b in breakdown:
+            bridge.append({"step": f"{b['for_period']}: {b['dividend_per_share']:.2f} x {b['shares']:,} shares",
+                           "value": b["total"], **b["dividend_source"], "detail": True})
+        bridge.append({"step": "Dividends declared for the period", "value": dividend_total, "page": None,
+                       "subtotal": True, "comparison": True})
 
     return {
         "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "accounting_model", "source_file")},
@@ -265,8 +296,9 @@ def print_summary(result):
     print(f"\n{meta['ticker']} {meta['period_label']} ({meta['accounting_model']} model)")
     print("-" * 52)
     for row in result["bridge"]:
-        page = f"p.{row['page']}" if row.get("page") else "computed"
-        print(f"{row['step']:<36}{row['value'] / 1e6:>12,.1f}M  {page}")
+        source = f"p.{row['page']} \"{row.get('label') or '?'}\"" if row.get("page") else "computed"
+        step = f"  {row['step']}" if row.get("detail") else row["step"]
+        print(f"{step:<44}{row['value'] / 1e6:>12,.1f}M  {source}")
     print("-" * 52)
     print(f"AFFO coverage: {m['affo_coverage']:.2f}x  -> safety light: {m['safety_light']}")
     if m["payout_of_distributable_income"] is not None:

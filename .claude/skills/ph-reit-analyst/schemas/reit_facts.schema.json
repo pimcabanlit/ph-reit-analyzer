@@ -102,7 +102,8 @@
         "value": {"type": "number"},
         "page": {"type": "integer", "description": "Printed page number (see meta.page_basis)."},
         "pdf_page": {"type": "integer", "description": "PDF page index if it differs from the printed page."},
-        "label": {"type": "string", "description": "Line item name as it appears in the filing."},
+        "label": {"type": "string", "description": "Exact text printed on the cited page (line item name or a short phrase next to the value), so a reader can search the PDF for it. Context goes in column or note, not here. scripts/check_citations.py verifies it."},
+        "column": {"type": "string", "description": "Column header the value sits under, e.g. 'January 1 to June 30, 2026' or 'December 31, 2025'."},
         "confidence": {"type": "string", "enum": ["high", "medium", "low"], "default": "high"},
         "rounded": {"type": "boolean", "description": "True if the filing reported this in millions and it was converted."},
         "note": {"type": "string"}
