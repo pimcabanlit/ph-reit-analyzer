@@ -3,6 +3,7 @@
   "description": "AREIT quarterly review, quarter ended March 31, 2026 (SEC Form 17-Q filed May 14, 2026). Fair value model; heavy finance lease income from sponsor entities.",
   "input_pdf": "data/raw/areit/2026-Q1-17Q.pdf",
   "gold_facts": "evals/gold/areit-2026-q1.facts.json",
+  "gold_report": "evals/gold/areit-2026-q1.report.md",
   "expected_metrics": {
     "ffo": {"value": 2623384308, "tolerance": 1},
     "affo": {"value": 2520701801, "tolerance": 1},

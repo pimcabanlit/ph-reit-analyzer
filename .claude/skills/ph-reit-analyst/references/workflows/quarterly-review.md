@@ -19,7 +19,7 @@ should an investor know?" with page-cited numbers.
 ## 2. Extract facts
 
 Create `data/facts/<ticker>/<YYYY>-Q<n>.facts.json` following
-`schemas/reit_facts.schema.json`. Where to find each value in a typical 17-Q:
+`schemas/reit_facts.schema.json` (in this skill's folder). Where to find each value in a typical 17-Q:
 
 | Fact | Usual location |
 |---|---|
@@ -40,15 +40,20 @@ Rules:
 - The same figure often appears in several places; extract from the primary
   statement and use the others as cross-checks.
 
-## 3. Compute
+## 3. Validate and compute
 
 ```bash
-python scripts/compute_metrics.py data/facts/<ticker>/<YYYY>-Q<n>.facts.json \
+python <skill-dir>/scripts/compute_metrics.py data/facts/<ticker>/<YYYY>-Q<n>.facts.json \
   -o outputs/<ticker>/<YYYY>-Q<n>/metrics.json
 ```
 
+The script first runs `scripts/validate_facts.py`. If it prints `[error]`
+lines, nothing is calculated: fix the facts file and run it again.
+`[warning]` lines (low or medium confidence values) must be mentioned in the
+report.
+
 Read the printed checks and flags. If a check fails, re-inspect the source
-page before assuming the filing is wrong — extraction errors are more common
+page before assuming the filing is wrong. Extraction errors are more common
 than filing errors.
 
 ## 4. Report
@@ -57,8 +62,15 @@ Write `outputs/<ticker>/<YYYY>-Q<n>/report.md` following
 `references/report-template.md`. Explain each flag in one or two plain
 sentences using `references/red-flags.md`.
 
-## 5. Test (when changing this workflow)
+## 5. Check the report
 
 ```bash
-python scripts/run_eval.py evals/areit-2026-q1.json --facts data/facts/areit/2026-Q1.facts.json
+python <skill-dir>/scripts/check_report.py outputs/<ticker>/<YYYY>-Q<n>/report.md \
+  --metrics outputs/<ticker>/<YYYY>-Q<n>/metrics.json \
+  --facts data/facts/<ticker>/<YYYY>-Q<n>.facts.json
 ```
+
+Fix every FAIL and run it again. Stop when everything passes; don't hand over
+a report with a FAIL. The script checks required sections, the disclaimer, no
+buy/sell/hold wording, that every number traces to `metrics.json` or the
+facts file, and that every flag and check has its own line.

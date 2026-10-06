@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Check results against a known-correct eval case.
 
-Two levels:
+Three levels:
   1. Analysis: metrics, checks and flags computed from facts vs expected answers.
   2. Extraction (only with --facts): each extracted fact vs the gold facts file.
+  3. Report (with --report, or the case's gold_report): the report passes
+     check_report.py against the computed metrics.
 
 Usage:
-    python scripts/run_eval.py evals/areit-2026-q1.json                  # uses gold facts
-    python scripts/run_eval.py evals/areit-2026-q1.json --facts data/facts/areit/2026-Q1.facts.json
+    python evals/run_eval.py evals/areit-2026-q1.json                  # uses gold facts
+    python evals/run_eval.py evals/areit-2026-q1.json --facts data/facts/areit/2026-Q1.facts.json
+    python evals/run_eval.py evals/areit-2026-q1.json --report outputs/areit/2026-Q1/report.md
 
 Exit code is 1 if anything fails, so this can run in CI.
 """
@@ -16,8 +19,11 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+SKILL_SCRIPTS = Path(__file__).resolve().parent.parent / ".claude" / "skills" / "ph-reit-analyst" / "scripts"
+sys.path.insert(0, str(SKILL_SCRIPTS))
+from check_report import check as check_report  # noqa: E402
 from compute_metrics import compute  # noqa: E402
+from validate_facts import validate  # noqa: E402
 
 
 def compare_extraction(facts_doc, gold_doc):
@@ -76,6 +82,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("case", type=Path)
     parser.add_argument("--facts", type=Path, help="Extracted facts to test (default: the gold facts)")
+    parser.add_argument("--report", type=Path, help="Report to check (default: the case's gold_report, if any)")
     args = parser.parse_args()
 
     case = json.loads(args.case.read_text())
@@ -83,9 +90,18 @@ def main():
     facts_doc = json.loads(args.facts.read_text()) if args.facts else gold_doc
 
     rows = []
-    if args.facts:
-        rows += compare_extraction(facts_doc, gold_doc)
-    rows += compare_analysis(compute(facts_doc), case)
+    errors, _ = validate(facts_doc)
+    rows += [("FAIL", "facts validation", e) for e in errors] or [("PASS", "facts validation", "no errors")]
+    if errors:
+        rows.append(("FAIL", "analysis", "skipped because the facts file is invalid"))
+    else:
+        if args.facts:
+            rows += compare_extraction(facts_doc, gold_doc)
+        result = compute(facts_doc)
+        rows += compare_analysis(result, case)
+        report_path = args.report or (Path(case["gold_report"]) if case.get("gold_report") else None)
+        if report_path:
+            rows += [(s, f"report {name}", d) for s, name, d in check_report(report_path.read_text(), result, facts_doc)]
 
     print(f"\nEval: {case['id']}  (facts: {args.facts or case['gold_facts']})\n")
     for status, name, detail in rows:

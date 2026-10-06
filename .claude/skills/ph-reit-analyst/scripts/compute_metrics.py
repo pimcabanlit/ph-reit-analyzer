@@ -5,12 +5,15 @@ Every calculation in this project lives here, so numbers are reproducible and
 testable. The AI extracts facts; this script does the math.
 
 Usage:
-    python scripts/compute_metrics.py <facts.json> [-o outputs/<ticker>/<period>/metrics.json]
+    python <skill-dir>/scripts/compute_metrics.py <facts.json> [-o outputs/<ticker>/<period>/metrics.json]
 """
 import argparse
 import json
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from validate_facts import validate  # noqa: E402
 
 PERIODS_PER_YEAR = {"quarter": 4, "half": 2, "year": 1}
 
@@ -250,7 +253,18 @@ def main():
     parser.add_argument("-o", "--output", type=Path, help="Where to write metrics.json")
     args = parser.parse_args()
 
-    result = compute(json.loads(args.facts.read_text()))
+    doc = json.loads(args.facts.read_text())
+    errors, warnings = validate(doc)
+    for w in warnings:
+        print(f"  [warning] {w}")
+    if errors:
+        for e in errors:
+            print(f"  [error] {e}")
+        print(f"\nFix the facts file before computing ({len(errors)} errors). Nothing was calculated.")
+        return 1
+
+    result = compute(doc)
+    result["validation_warnings"] = warnings
     print_summary(result)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
