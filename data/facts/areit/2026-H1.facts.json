@@ -32,6 +32,8 @@
     "rental_income": {"value": 4734950011, "page": 7, "label": "Rental income", "column": "January 1 to June 30, 2026"},
     "finance_lease_interest_income": {"value": 1876926711, "page": 7, "label": "Interest income from finance lease receivables", "note": "Non-cash per Note 16 (p.21).", "column": "January 1 to June 30, 2026"},
     "fair_value_change": {"value": -214239117, "page": 7, "label": "Net fair value change in investment properties", "column": "January 1 to June 30, 2026"},
+    "net_income_quarter": {"value": 3055671306, "page": 7, "label": "NET INCOME", "column": "April 1 to June 30, 2026"},
+    "fair_value_change_quarter": {"value": -150515097, "page": 7, "label": "Net fair value change in investment properties", "column": "April 1 to June 30, 2026"},
     "depreciation_amortization": {"value": 231092, "page": 9, "label": "Depreciation and amortization", "note": "Property and equipment only; investment property is at fair value.", "column": "January 1 to June 30, 2026"},
     "straight_line_rent_adjustment": {"value": 214239117, "page": 18, "label": "Straight-line adjustments recorded in rental income", "note": "From the distributable income computation; equals the fair value loss to the peso, as in Q1.", "column": "June 30, 2026"},
     "capex_investment_property": {"value": 96355409, "page": 9, "label": "Payments for additions to investment properties", "column": "January 1 to June 30, 2026"},

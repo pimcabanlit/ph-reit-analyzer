@@ -5,7 +5,12 @@ Every calculation in this project lives here, so numbers are reproducible and
 testable. The AI extracts facts; this script does the math.
 
 Usage:
-    python <skill-dir>/scripts/compute_metrics.py <facts.json> [-o outputs/<ticker>/<period>/metrics.json]
+    python <skill-dir>/scripts/compute_metrics.py <facts.json> [-o outputs/<ticker>/<period>/metrics.json] [--prior <facts.json>]
+
+For year-to-date periods (half, nine_months), the standalone latest quarter is
+derived by subtracting the earlier period's facts file of the same year, if
+it exists next to this one (<YYYY>-Q1.facts.json for a half,
+<YYYY>-H1.facts.json for nine months) or is given with --prior.
 """
 import argparse
 import json
@@ -28,6 +33,11 @@ FINANCE_LEASE_SHARE_FLAG = 0.10
 RELATED_PARTY_LENDING_FLAG = 0.10
 STRAIGHT_LINE_MISMATCH = 0.10
 SHARES_ISSUED_FLAG = 0.05
+# Year-to-date period -> (period type of the earlier file, its label suffix)
+PRIOR_PERIOD = {"half": ("quarter", "Q1"), "nine_months": ("half", "H1")}
+# Flow items subtracted to derive a standalone quarter
+DERIVED_FLOWS = ["net_income", "fair_value_change", "real_estate_depreciation", "gain_on_property_sale",
+                 "straight_line_rent_adjustment", "capex_investment_property"]
 NAV_ROUNDING_TOLERANCE = 0.01
 
 
@@ -59,29 +69,40 @@ def cite(item):
     return {"page": item.get("page"), "label": item.get("label"), "column": item.get("column")}
 
 
-def compute(doc):
+def ffo_affo(model, v):
+    """FFO and AFFO from flow values (references/accounting-models.md)."""
+    if model == "fair_value":
+        ffo = v["net_income"] - v["fair_value_change"]
+    elif model == "cost":
+        ffo = v["net_income"] + v["real_estate_depreciation"] - (v.get("gain_on_property_sale") or 0)
+    else:
+        raise ValueError(f"Unknown accounting model: {model}")
+    affo = ffo - (v.get("straight_line_rent_adjustment") or 0) - v["capex_investment_property"]
+    return ffo, affo
+
+
+def safety_light(coverage):
+    if coverage is None:
+        return None
+    if coverage >= SAFETY_GREEN_MIN:
+        return "green"
+    if coverage >= SAFETY_YELLOW_MIN:
+        return "yellow"
+    return "red"
+
+
+def compute(doc, prior_doc=None):
     f = Facts(doc)
     model = f.meta["accounting_model"]
     period_type = f.meta.get("period_type", "quarter")
 
     net_income = f.get("net_income")
-
-    # FFO depends on the accounting model (references/accounting-models.md)
-    if model == "fair_value":
-        fv_change = f.get("fair_value_change")
-        ffo = net_income - fv_change
-        ffo_method = "net income minus fair value change (fair value model)"
-    elif model == "cost":
-        dep = f.get("real_estate_depreciation")
-        gain = f.get("gain_on_property_sale", required=False) or 0
-        ffo = net_income + dep - gain
-        ffo_method = "net income plus real estate depreciation minus gains on sale (cost model)"
-    else:
-        raise ValueError(f"Unknown accounting model: {model}")
-
-    straight_line = f.get("straight_line_rent_adjustment", required=False) or 0
-    capex = f.get("capex_investment_property")
-    affo = ffo - straight_line - capex
+    flows = {k: f.get(k, required=False) for k in DERIVED_FLOWS}
+    ffo, affo = ffo_affo(model, flows)
+    ffo_method = {"fair_value": "net income minus fair value change (fair value model)",
+                  "cost": "net income plus real estate depreciation minus gains on sale (cost model)"}[model]
+    straight_line = flows["straight_line_rent_adjustment"] or 0
+    capex = flows["capex_investment_property"]
 
     shares = f.get("shares_outstanding")
     if f.dividends:
@@ -136,15 +157,10 @@ def compute(doc):
         "debt_to_total_assets": debt / assets if debt is not None else None,
     }
 
-    if coverage is None:
-        light = None
-    elif coverage >= SAFETY_GREEN_MIN:
-        light = "green"
-    elif coverage >= SAFETY_YELLOW_MIN:
-        light = "yellow"
-    else:
-        light = "red"
-    metrics["safety_light"] = light
+    metrics["safety_light"] = safety_light(coverage)
+
+    derived, derived_checks, derived_flags = derive_quarter(f, prior_doc, flows, breakdown)
+    metrics["derived_quarter"] = derived
 
     bridge = [
         {"step": "Net income", "value": net_income, **f.source("net_income")},
@@ -156,6 +172,12 @@ def compute(doc):
     bridge += [
         {"step": "FFO", "value": ffo, "page": None, "subtotal": True},
         {"step": "Less straight-line rent", "value": -straight_line, **f.source("straight_line_rent_adjustment")},
+    ]
+    if di is not None and model == "fair_value":
+        # Reported figure; the distributable_income_reconciles check confirms it equals the running total
+        bridge.append({"step": "Distributable income (reported)", "value": di, **f.source("reported_distributable_income"),
+                       "subtotal": True})
+    bridge += [
         {"step": "Less capex", "value": -capex, **f.source("capex_investment_property")},
         {"step": "AFFO", "value": affo, "page": None, "subtotal": True},
     ]
@@ -174,9 +196,94 @@ def compute(doc):
         "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "accounting_model", "source_file")},
         "metrics": metrics,
         "bridge": bridge,
-        "checks": run_checks(f, ffo, nav_per_share),
-        "flags": detect_flags(f, coverage, fl_share),
+        "checks": run_checks(f, ffo, nav_per_share) + derived_checks,
+        "flags": detect_flags(f, coverage, fl_share) + derived_flags,
     }
+
+
+def derive_quarter(f, prior_doc, flows, breakdown):
+    """Standalone latest quarter = year-to-date minus the earlier period, for flow items only.
+
+    Returns (derived_quarter or None, checks, flags). Refuses to subtract, and
+    flags prior_period_mismatch, when the two files don't line up or the result
+    disagrees with the quarter column the filing prints itself.
+    """
+    period_type = f.meta.get("period_type")
+    if period_type not in PRIOR_PERIOD:
+        return None, [], []
+    skipped = lambda why: [{"id": "derived_quarter_matches_filing", "status": "skipped", "detail": why}]  # noqa: E731
+    if prior_doc is None:
+        return None, skipped("No facts file for the earlier period"), []
+
+    p = Facts(prior_doc)
+    year, month = f.meta["period_end"][:4], int(f.meta["period_end"][5:7])
+    quarter = f"{year}-Q{(month - 1) // 3 + 1}"
+    problems = []
+    expected_type, _ = PRIOR_PERIOD[period_type]
+    if p.meta.get("period_type") != expected_type:
+        problems.append(f"earlier file is a {p.meta.get('period_type')}, expected {expected_type}")
+    for key in ("ticker", "accounting_model"):
+        if p.meta.get(key) != f.meta.get(key):
+            problems.append(f"{key} differs ({p.meta.get(key)} vs {f.meta.get(key)})")
+    if p.meta.get("period_end", "")[:4] != year:
+        problems.append(f"earlier file is for {p.meta.get('period_end', '')[:4]}, not {year}")
+
+    values, inputs, verified = {}, {}, []
+    if not problems:
+        for key in DERIVED_FLOWS:
+            cur, prev = flows[key], p.get(key, required=False)
+            if cur is None and prev is None:
+                continue
+            if cur is None or prev is None:
+                problems.append(f"{key} is in only one of the two files")
+                continue
+            values[key] = cur - prev
+            inputs[key] = {"value": values[key], "year_to_date": f.source(key), "earlier": p.source(key)}
+        if values.get("capex_investment_property", 0) < 0:
+            problems.append("derived capex is negative, so the earlier capex is larger than year-to-date")
+        # The filing prints its own quarter column for income statement items: the derived value must match it
+        for key in ("net_income", "fair_value_change"):
+            printed = f.get(f"{key}_quarter", required=False)
+            if printed is None or key not in values:
+                continue
+            if abs(values[key] - printed) > 1:
+                problems.append(f"derived {key} {values[key]:,} differs from the filing's quarter column {printed:,} "
+                                f"(p.{f.page(key + '_quarter')}); the earlier figures may have been restated")
+            else:
+                verified.append(key)
+
+    if problems:
+        detail = "; ".join(problems)
+        return None, [{"id": "derived_quarter_matches_filing", "status": "needs_review", "detail": detail}], [{
+            "id": "prior_period_mismatch",
+            "severity": "needs_review",
+            "detail": f"Standalone {quarter} not derived: {detail}.",
+            "pages": [],
+        }]
+
+    ffo, affo = ffo_affo(f.meta["accounting_model"], values)
+    dividend = next((b for b in breakdown if b["for_period"] == quarter), None)
+    coverage = affo / dividend["total"] if dividend and dividend["total"] else None
+    derived = {
+        "period": quarter,
+        "basis": "derived",
+        "derived_from": [f.meta.get("period_label"), p.meta.get("period_label")],
+        "inputs": inputs,
+        "ffo": ffo,
+        "affo": affo,
+        "dividend_declared": dividend["total"] if dividend else None,
+        "dividend_per_share": dividend["dividend_per_share"] if dividend else None,
+        "affo_coverage": coverage,
+        "safety_light": safety_light(coverage),
+        "verified_against_filing": verified,
+    }
+    if verified:
+        check = {"id": "derived_quarter_matches_filing", "status": "pass",
+                 "detail": f"Derived {quarter} " + ", ".join(f"{k} {values[k]:,}" for k in verified)
+                           + " match the filing's quarter column"}
+    else:
+        check = skipped("No quarter column in the facts file to compare against")[0]
+    return derived, [check], []
 
 
 def _check(check_id, ok, detail, review=False):
@@ -305,6 +412,10 @@ def print_summary(result):
         print(f"Payout of distributable income: {m['payout_of_distributable_income']:.1%}")
     if m["nav_per_share"] is not None:
         print(f"NAV per share (estimate): {m['nav_per_share']:.2f}")
+    dq = m.get("derived_quarter")
+    if dq and dq["affo_coverage"] is not None:
+        print(f"Standalone {dq['period']} (derived): AFFO {dq['affo'] / 1e6:,.1f}M, "
+              f"coverage {dq['affo_coverage']:.2f}x -> {dq['safety_light']}")
     print("\nChecks:")
     for c in result["checks"]:
         print(f"  [{c['status']}] {c['id']}: {c['detail']}")
@@ -313,10 +424,19 @@ def print_summary(result):
         print(f"  [{fl['severity']}] {fl['id']}: {fl['detail']}")
 
 
+def find_prior(facts_path, meta):
+    """The earlier period's facts file, if it sits next to this one."""
+    if meta.get("period_type") not in PRIOR_PERIOD:
+        return None
+    candidate = facts_path.parent / f"{meta['period_end'][:4]}-{PRIOR_PERIOD[meta['period_type']][1]}.facts.json"
+    return candidate if candidate.exists() else None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("facts", type=Path)
     parser.add_argument("-o", "--output", type=Path, help="Where to write metrics.json")
+    parser.add_argument("--prior", type=Path, help="Facts file for the earlier period of the same year")
     args = parser.parse_args()
 
     doc = json.loads(args.facts.read_text())
@@ -329,7 +449,18 @@ def main():
         print(f"\nFix the facts file before computing ({len(errors)} errors). Nothing was calculated.")
         return 1
 
-    result = compute(doc)
+    prior_path = args.prior or find_prior(args.facts, doc["meta"])
+    prior_doc = None
+    if prior_path:
+        prior_doc = json.loads(prior_path.read_text())
+        prior_errors, _ = validate(prior_doc)
+        if prior_errors:
+            print(f"  [warning] earlier facts file {prior_path} is invalid, so no quarter is derived: {prior_errors[0]}")
+            prior_doc = None
+        else:
+            print(f"  Deriving the standalone quarter with {prior_path}")
+
+    result = compute(doc, prior_doc)
     result["validation_warnings"] = warnings
     print_summary(result)
     if args.output:

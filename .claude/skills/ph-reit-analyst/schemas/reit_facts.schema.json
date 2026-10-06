@@ -73,6 +73,8 @@
         "reported_distributable_income": {"$ref": "#/$defs/fact"},
         "dividend_per_share_declared": {"$ref": "#/$defs/fact", "description": "Dividend declared FOR this period (may be declared after period end). Use the dividends list instead when the period has more than one declaration."},
         "dividend_declared_total_reported": {"$ref": "#/$defs/fact"},
+        "net_income_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: net income for the latest quarter as printed in the filing's quarter column. Cross-checks the derived quarter."},
+        "fair_value_change_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: fair value change for the latest quarter as printed. Cross-checks the derived quarter."},
         "mdna_net_income_before_fv_change": {"$ref": "#/$defs/fact", "description": "Cross-check only."},
         "reported_nav_per_share": {"$ref": "#/$defs/fact", "description": "NAV per share as reported by the company. Cross-check only."},
         "sponsor_ownership_pct": {"$ref": "#/$defs/fact"}
