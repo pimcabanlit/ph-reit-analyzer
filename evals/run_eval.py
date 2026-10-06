@@ -42,6 +42,17 @@ def compare_extraction(facts_doc, gold_doc):
             rows.append(("WARN", f"fact {key}", f"value ok, page {x.get('page')} vs gold {g.get('page')}"))
         else:
             rows.append(("FAIL", f"fact {key}", f"{x['value']:,} vs gold {g['value']:,}"))
+    got_divs = {d["for_period"]: d for d in facts_doc.get("dividends", [])}
+    for g in gold_doc.get("dividends", []):
+        x = got_divs.get(g["for_period"])
+        for key in ("dividend_per_share", "shares"):
+            name = f"dividend {g['for_period']} {key}"
+            if x is None or key not in x:
+                rows.append(("FAIL", name, "missing"))
+            elif abs(x[key]["value"] - g[key]["value"]) > 1e-6:
+                rows.append(("FAIL", name, f"{x[key]['value']:,} vs gold {g[key]['value']:,}"))
+            else:
+                rows.append(("PASS", name, f"{x[key]['value']:,} p.{x[key].get('page')}"))
     if facts_doc["meta"].get("accounting_model") != gold_doc["meta"].get("accounting_model"):
         rows.append(("FAIL", "meta accounting_model", f"{facts_doc['meta'].get('accounting_model')} vs gold {gold_doc['meta'].get('accounting_model')}"))
     else:

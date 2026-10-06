@@ -56,10 +56,11 @@ def validate(doc, schema=None):
 
     known = set(facts_schema["properties"])
     confidence_values = fact_schema["properties"]["confidence"]["enum"]
-    for key, item in facts.items():
+
+    def check_fact(key, item):
         if not isinstance(item, dict):
             errors.append(f"{key}: must be an object with value and page")
-            continue
+            return
         value, page = item.get("value"), item.get("page")
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             errors.append(f"{key}: value must be a number, got {value!r}")
@@ -72,8 +73,28 @@ def validate(doc, schema=None):
             warnings.append(f"{key}: low confidence — mention in the report ({item.get('note', 'no note given')})")
         elif conf == "medium":
             warnings.append(f"{key}: medium confidence ({item.get('note', 'no note given')})")
+
+    for key, item in facts.items():
+        check_fact(key, item)
         if key not in known:
             warnings.append(f"{key}: not a known fact name; check spelling (it will be ignored by the metrics)")
+
+    dividends = doc.get("dividends")
+    if dividends is not None:
+        if not isinstance(dividends, list) or not dividends:
+            errors.append("dividends must be a non-empty list")
+        else:
+            item_spec = schema["properties"]["dividends"]["items"]
+            for i, d in enumerate(dividends, 1):
+                label = f"dividends[{i}] ({d.get('for_period', '?')})"
+                for key in item_spec["required"]:
+                    if key not in d:
+                        errors.append(f"{label}: missing {key}")
+                for key in ("dividend_per_share", "shares", "reported_total"):
+                    if key in d:
+                        check_fact(f"{label}.{key}", d[key])
+    elif "dividend_per_share_declared" not in facts:
+        errors.append("No dividend: add facts.dividend_per_share_declared, or a dividends list for multi-quarter periods")
 
     for key in ("capex_investment_property", "straight_line_rent_adjustment", "shares_outstanding"):
         value = facts.get(key, {}).get("value")

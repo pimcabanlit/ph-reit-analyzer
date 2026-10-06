@@ -102,6 +102,7 @@ def check(report, metrics, facts):
     values = []
     collect_numbers(metrics, values)
     collect_numbers(facts.get("facts", {}), values)
+    collect_numbers(facts.get("dividends", []), values)
     cands = candidates(values)
     untraced = []
     for line_no, line in enumerate(report.splitlines(), 1):

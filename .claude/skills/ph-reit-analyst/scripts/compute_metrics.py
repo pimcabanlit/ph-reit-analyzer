@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from validate_facts import validate  # noqa: E402
 
-PERIODS_PER_YEAR = {"quarter": 4, "half": 2, "year": 1}
+PERIODS_PER_YEAR = {"quarter": 4, "half": 2, "nine_months": 4 / 3, "year": 1}
 
 # Tolerance for comparing against figures the filing reports in millions
 # (rounded to P0.01 million = P10,000; half of that is the max rounding error).
@@ -27,12 +27,15 @@ SAFETY_YELLOW_MIN = 1.00
 FINANCE_LEASE_SHARE_FLAG = 0.10
 RELATED_PARTY_LENDING_FLAG = 0.10
 STRAIGHT_LINE_MISMATCH = 0.10
+SHARES_ISSUED_FLAG = 0.05
+NAV_ROUNDING_TOLERANCE = 0.01
 
 
 class Facts:
     def __init__(self, doc):
         self.meta = doc["meta"]
         self.items = doc["facts"]
+        self.dividends = doc.get("dividends")
 
     def get(self, key, required=True):
         item = self.items.get(key)
@@ -71,9 +74,16 @@ def compute(doc):
     capex = f.get("capex_investment_property")
     affo = ffo - straight_line - capex
 
-    dps = f.get("dividend_per_share_declared")
     shares = f.get("shares_outstanding")
-    dividend_total = round(dps * shares)
+    if f.dividends:
+        # One entry per declaration, each on its own record-date share count
+        dps = sum(d["dividend_per_share"]["value"] for d in f.dividends)
+        dividend_total = sum(round(d["dividend_per_share"]["value"] * d["shares"]["value"]) for d in f.dividends)
+        dividend_page = ", ".join(str(d["dividend_per_share"]["page"]) for d in f.dividends)
+    else:
+        dps = f.get("dividend_per_share_declared")
+        dividend_total = round(dps * shares)
+        dividend_page = f.page("dividend_per_share_declared")
     coverage = affo / dividend_total if dividend_total else None
 
     di = f.get("reported_distributable_income", required=False)
@@ -94,6 +104,7 @@ def compute(doc):
         "ffo_method": ffo_method,
         "affo": affo,
         "dividend_declared_total": dividend_total,
+        "dividend_per_share_for_period": dps,
         "affo_coverage": coverage,
         "payout_of_distributable_income": payout_di,
         "nav_per_share": nav_per_share,
@@ -125,14 +136,14 @@ def compute(doc):
         {"step": "Less straight-line rent", "value": -straight_line, "page": f.page("straight_line_rent_adjustment")},
         {"step": "Less capex", "value": -capex, "page": f.page("capex_investment_property")},
         {"step": "AFFO", "value": affo, "page": None, "subtotal": True},
-        {"step": "Dividend declared for the period", "value": dividend_total, "page": f.page("dividend_per_share_declared"), "comparison": True},
+        {"step": "Dividend declared for the period", "value": dividend_total, "page": dividend_page, "comparison": True},
     ]
 
     return {
-        "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_end", "accounting_model", "source_file")},
+        "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "accounting_model", "source_file")},
         "metrics": metrics,
         "bridge": bridge,
-        "checks": run_checks(f, ffo, dividend_total),
+        "checks": run_checks(f, ffo, nav_per_share),
         "flags": detect_flags(f, coverage, fl_share),
     }
 
@@ -142,7 +153,7 @@ def _check(check_id, ok, detail, review=False):
     return {"id": check_id, "status": status, "detail": detail}
 
 
-def run_checks(f, ffo, dividend_total):
+def run_checks(f, ffo, nav_per_share):
     checks = []
 
     assets, liab, equity = f.get("total_assets"), f.get("total_liabilities"), f.get("total_equity")
@@ -167,13 +178,27 @@ def run_checks(f, ffo, dividend_total):
     else:
         checks.append({"id": "distributable_income_reconciles", "status": "skipped", "detail": "Not available"})
 
-    reported = f.get("dividend_declared_total_reported", required=False)
-    if reported is not None:
-        diff = dividend_total - reported
-        checks.append(_check("dividend_total_matches_reported", abs(diff) <= ROUNDED_MILLIONS_TOLERANCE,
-                             f"DPS x shares = {dividend_total:,} vs reported {reported:,} (diff {diff:,})", review=True))
+    if f.dividends:
+        pairs = [(d["for_period"], round(d["dividend_per_share"]["value"] * d["shares"]["value"]), d["reported_total"]["value"])
+                 for d in f.dividends if d.get("reported_total")]
+    else:
+        reported = f.get("dividend_declared_total_reported", required=False)
+        pairs = [(f.meta.get("period_label"), round(f.get("dividend_per_share_declared") * f.get("shares_outstanding")), reported)] \
+            if reported is not None else []
+    if pairs:
+        ok = all(abs(calc - rep) <= ROUNDED_MILLIONS_TOLERANCE for _, calc, rep in pairs)
+        detail = "; ".join(f"{label}: DPS x shares = {calc:,} vs reported {rep:,} (diff {calc - rep:,})" for label, calc, rep in pairs)
+        checks.append(_check("dividend_total_matches_reported", ok, detail, review=True))
     else:
         checks.append({"id": "dividend_total_matches_reported", "status": "skipped", "detail": "No reported total"})
+
+    reported_nav = f.get("reported_nav_per_share", required=False)
+    if reported_nav is not None and nav_per_share is not None:
+        diff = nav_per_share - reported_nav
+        checks.append(_check("nav_matches_reported", abs(diff) <= NAV_ROUNDING_TOLERANCE,
+                             f"equity / shares = {nav_per_share:.4f} vs reported {reported_nav:.2f}", review=True))
+    else:
+        checks.append({"id": "nav_matches_reported", "status": "skipped", "detail": "No reported NAV or cost model"})
 
     return checks
 
@@ -212,6 +237,15 @@ def detect_flags(f, coverage, fl_share):
             "severity": "worth_knowing",
             "detail": f"Cash lent to related parties: {-rp:,} ({-rp / ni:.0%} of net income).",
             "pages": [f.page("change_due_from_related_parties")],
+        })
+
+    shares, shares_prior = f.get("shares_outstanding"), f.get("shares_outstanding_prior", required=False)
+    if shares_prior and (shares - shares_prior) / shares_prior > SHARES_ISSUED_FLAG:
+        flags.append({
+            "id": "shares_issued_in_period",
+            "severity": "worth_knowing",
+            "detail": f"Shares outstanding rose {shares - shares_prior:,} ({(shares - shares_prior) / shares_prior:.1%}) during the period.",
+            "pages": [f.page("shares_outstanding"), f.page("shares_outstanding_prior")],
         })
 
     if coverage is not None and coverage < 1.0:

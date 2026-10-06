@@ -40,6 +40,19 @@ Thresholds below are starting assumptions. Tune them as more REITs are tested.
 - **Plain wording:** "During the quarter the REIT lent ₱X to companies in its
   sponsor's group."
 
+## shares_issued_in_period (worth_knowing)
+
+- **Detect:** shares outstanding at period end are more than 5% higher than
+  at the start (`shares_outstanding` vs `shares_outstanding_prior`).
+- **Why it matters:** PH REITs often buy properties from the sponsor by issuing
+  new shares (property-for-share swaps). Dividends declared after the issue are
+  paid on the larger share count, but the new properties may have contributed
+  only part of the period's income. Coverage can look weaker or stronger than
+  the run-rate until a full period has passed.
+- **Plain wording:** "The REIT issued X new shares (Y% more) during the period,
+  mostly to the sponsor in exchange for properties. Later dividends are shared
+  across more shares, while the new properties have only just started earning."
+
 ## dividend_not_covered (needs_review)
 
 - **Detect:** AFFO coverage below 1.00x.

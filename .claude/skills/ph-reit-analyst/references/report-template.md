@@ -7,7 +7,7 @@ decimal (₱2,520.7M) except per-share figures (₱0.62).
 ALWAYS use this structure:
 
 ```markdown
-# <TICKER> — <Quarter> <Year> review
+# <TICKER> — <period, e.g. Q1 2026 or 1H 2026 (January to June)> review
 
 **In one sentence:** <plain answer about dividend safety, citing coverage>
 
@@ -26,7 +26,7 @@ ALWAYS use this structure:
 | − Straight-line rent (booked, not yet collected) | | p.<n> |
 | − Capex (spending on the buildings) | | p.<n> |
 | = AFFO (cash earnings after upkeep) | | computed |
-| Dividend declared for the quarter | | p.<n> |
+| Dividend declared for the period | | p.<n> |
 | Coverage (AFFO ÷ dividend) | x.xx | computed |
 
 ## Checks
@@ -40,6 +40,9 @@ ALWAYS use this structure:
 ---
 Source: <form, period, filing date>. For learning and research only. Not investment advice.
 ```
+
+For year-to-date periods (1H, 9M), say so in the title and the one-sentence
+answer, and list each quarter's dividend per share under "Other figures".
 
 Tone examples:
 

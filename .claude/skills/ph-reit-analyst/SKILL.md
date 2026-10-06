@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+ and pdfplumber and pymupdf (pip install -r requirements.txt in this folder) to read filing PDFs; the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # PH REIT Analyst
@@ -45,7 +45,7 @@ more than speed, which is why extraction and calculation are separated.
 
 | The user gives or asks for | Do this |
 |---|---|
-| A 17-Q quarterly report, or "is the dividend safe" for a quarter | Follow `references/workflows/quarterly-review.md` |
+| A 17-Q quarterly report, or "is the dividend safe" for a quarter | Follow `references/workflows/quarterly-review.md`. Q2 and Q3 filings are analyzed year-to-date (see "Which period to analyze" there). |
 | A 17-A annual report | Not built yet. Say so, then offer a quarterly-style review of the annual figures, clearly labeled as partial. |
 | Comparisons, total return, asset infusions | Not built yet. Say so and offer what the quarterly review can answer. |
 | A REIT question with no filing | Ask for the filing (PSE EDGE or the REIT's investor relations page). Don't answer from memory. |

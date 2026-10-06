@@ -32,8 +32,8 @@ here; change them there.
 
 - Propose a plan before large changes and wait for approval.
 - Keep changes small. After any change to extraction, metrics or report logic,
-  run `python evals/run_eval.py evals/areit-2026-q1.json` and report what
-  passes and fails.
+  run `python evals/run_eval.py` on every case in `evals/` (`areit-2026-q1.json`,
+  `areit-2026-h1.json`) and report what passes and fails.
 - After changing the skill's `description`, run
   `python evals/run_trigger_eval.py` (makes one model call per prompt).
 - Keep the skill portable: no paths outside its folder, no reliance on this
