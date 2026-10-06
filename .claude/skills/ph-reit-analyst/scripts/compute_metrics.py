@@ -193,7 +193,7 @@ def compute(doc, prior_doc=None):
                        "subtotal": True, "comparison": True})
 
     return {
-        "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "accounting_model", "source_file")},
+        "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "filing_date", "accounting_model", "source_file")},
         "metrics": metrics,
         "bridge": bridge,
         "checks": run_checks(f, ffo, nav_per_share) + derived_checks,

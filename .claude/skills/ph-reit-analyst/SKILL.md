@@ -1,7 +1,7 @@
 ---
 name: ph-reit-analyst
 description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CREIT, FILRT, DDMPR, PREIT, VREIT or any other PSE-listed REIT) from their filings, such as SEC Form 17-Q quarterly reports (PDF), 17-A annual reports and dividend declarations. Computes FFO, AFFO, dividend coverage, distributable income payout and NAV per share with page citations, runs validation checks, and flags risks like sponsor-related income or unusual adjustments. Use when the user uploads or points to a PH REIT filing, asks if a PH REIT's dividend is safe, covered or sustainable, asks about its earnings quality, valuation or sponsor dependence, or wants a REIT report explained in plain language (including in Filipino/Taglish), even without terms like FFO or AFFO. Do NOT use for non-REIT Philippine stocks, foreign REITs, live share prices, or buy/sell/hold advice.
-compatibility: Needs code execution with Python 3.9+ and pdfplumber and pymupdf (pip install -r requirements.txt in this folder) to read filing PDFs; the metric and check scripts use only the standard library. No network access required.
+compatibility: Needs code execution with Python 3.9+, pdfplumber and pymupdf to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
   version: 0.4.0
