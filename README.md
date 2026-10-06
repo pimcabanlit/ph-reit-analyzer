@@ -14,7 +14,10 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 
 ## Status
 
-Version 0.2: quarterly review workflow only, tested on AREIT Q1 2026.
+Version 0.3: quarterly review workflow only. Q1 filings are analyzed for the
+quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
+flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
+2026 from the Q2 17-Q (extracted by the skill, pending owner verification).
 
 ## Install
 
@@ -33,14 +36,16 @@ pip install -r .claude/skills/ph-reit-analyst/requirements.txt
 
 ## Use
 
-Put the filing at `data/raw/areit/2026-Q1-17Q.pdf` and ask Claude:
+Put the filing in `data/raw/<ticker>/` (for example the included
+`data/raw/areit/2026-Q2-17Q.pdf`) and ask Claude:
 
-- "Run a quarterly review on data/raw/areit/2026-Q1-17Q.pdf"
+- "Run a quarterly review on data/raw/areit/2026-Q2-17Q.pdf"
 - "Is AREIT's dividend safe this quarter?"
 - "Safe ba ang dividend ng AREIT ngayong quarter?"
 
 See [`evals/gold/areit-2026-q1.report.md`](evals/gold/areit-2026-q1.report.md)
-for an example of the report it produces.
+and [`evals/gold/areit-2026-h1.report.md`](evals/gold/areit-2026-h1.report.md)
+for examples of the report it produces.
 
 ## Develop and test
 
@@ -52,18 +57,18 @@ python $SKILL/scripts/compute_metrics.py evals/gold/areit-2026-q1.facts.json
 
 # Functional eval: facts validation, metrics, checks, flags and the example report
 python evals/run_eval.py evals/areit-2026-q1.json
+python evals/run_eval.py evals/areit-2026-h1.json
 
 # Test a facts file or report produced by the skill against the gold answers
-python evals/run_eval.py evals/areit-2026-q1.json \
-  --facts data/facts/areit/2026-Q1.facts.json --report outputs/areit/2026-Q1/report.md
+python evals/run_eval.py evals/areit-2026-h1.json \
+  --facts data/facts/areit/2026-H1.facts.json --report outputs/areit/2026-H1/report.md
 
 # Trigger eval: does the skill load for relevant requests and stay off otherwise?
 # Needs the claude CLI; makes one model call per prompt.
 python evals/run_trigger_eval.py
 ```
 
-The extraction step (PDF to facts) can only be tested end to end once the
-filing PDF is in `data/raw/areit/`.
+The Q1 2026 filing PDF isn't in the repo, so only its analysis is tested.
 
 ## Disclaimer
 
