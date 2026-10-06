@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "reit_facts.schema.json",
+  "title": "PH REIT facts extracted from one filing",
+  "description": "Contract between extraction and analysis. Values are whole pesos (except per-share and percentages), signed as presented in the statements. Every fact cites the printed page it came from.",
+  "type": "object",
+  "required": ["meta", "facts"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["ticker", "company", "form_type", "period_end", "period_type", "accounting_model", "accounting_model_page", "source_file"],
+      "properties": {
+        "ticker": {"type": "string", "examples": ["AREIT"]},
+        "company": {"type": "string"},
+        "form_type": {"type": "string", "enum": ["17-Q", "17-A"]},
+        "period_end": {"type": "string", "format": "date"},
+        "period_type": {"type": "string", "enum": ["quarter", "half", "year"]},
+        "period_label": {"type": "string", "examples": ["2026-Q1"]},
+        "filing_date": {"type": "string", "format": "date"},
+        "source_file": {"type": "string"},
+        "accounting_model": {"type": "string", "enum": ["fair_value", "cost"]},
+        "accounting_model_page": {"type": "integer"},
+        "page_basis": {"type": "string", "description": "How page numbers are counted, e.g. 'printed' or 'pdf_index'."},
+        "document_map": {
+          "type": "array",
+          "description": "Page ranges of the documents bundled in the PDF.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document": {"type": "string"},
+              "pages": {"type": "string"},
+              "has_text_layer": {"type": "boolean"}
+            }
+          }
+        },
+        "extracted_by": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "facts": {
+      "type": "object",
+      "required": [
+        "net_income", "total_revenue", "capex_investment_property",
+        "dividend_per_share_declared", "shares_outstanding",
+        "total_assets", "total_liabilities", "total_equity"
+      ],
+      "additionalProperties": {"$ref": "#/$defs/fact"},
+      "properties": {
+        "net_income": {"$ref": "#/$defs/fact"},
+        "total_revenue": {"$ref": "#/$defs/fact"},
+        "rental_income": {"$ref": "#/$defs/fact"},
+        "finance_lease_interest_income": {"$ref": "#/$defs/fact"},
+        "fair_value_change": {"$ref": "#/$defs/fact", "description": "Signed. Loss is negative. Required for fair_value model."},
+        "real_estate_depreciation": {"$ref": "#/$defs/fact", "description": "Required for cost model."},
+        "gain_on_property_sale": {"$ref": "#/$defs/fact"},
+        "depreciation_amortization": {"$ref": "#/$defs/fact", "description": "Total D&A from the cash flow (may include non-real-estate items)."},
+        "straight_line_rent_adjustment": {"$ref": "#/$defs/fact", "description": "Positive amount deducted for non-cash straight-line rent."},
+        "capex_investment_property": {"$ref": "#/$defs/fact", "description": "Positive amount paid for additions to investment properties."},
+        "operating_cash_flow": {"$ref": "#/$defs/fact"},
+        "dividends_paid": {"$ref": "#/$defs/fact"},
+        "change_due_from_related_parties": {"$ref": "#/$defs/fact", "description": "Investing cash flow line; negative = cash lent to related parties."},
+        "total_assets": {"$ref": "#/$defs/fact"},
+        "total_liabilities": {"$ref": "#/$defs/fact"},
+        "total_equity": {"$ref": "#/$defs/fact"},
+        "total_debt": {"$ref": "#/$defs/fact"},
+        "cash": {"$ref": "#/$defs/fact"},
+        "accrued_rent_receivable": {"$ref": "#/$defs/fact"},
+        "accrued_rent_receivable_prior": {"$ref": "#/$defs/fact"},
+        "finance_lease_receivable": {"$ref": "#/$defs/fact"},
+        "finance_lease_receivable_prior": {"$ref": "#/$defs/fact"},
+        "shares_outstanding": {"$ref": "#/$defs/fact"},
+        "reported_distributable_income": {"$ref": "#/$defs/fact"},
+        "dividend_per_share_declared": {"$ref": "#/$defs/fact", "description": "Dividend declared FOR this period (may be declared after period end)."},
+        "dividend_declared_total_reported": {"$ref": "#/$defs/fact"},
+        "mdna_net_income_before_fv_change": {"$ref": "#/$defs/fact", "description": "Cross-check only."},
+        "sponsor_ownership_pct": {"$ref": "#/$defs/fact"}
+      }
+    }
+  },
+  "$defs": {
+    "fact": {
+      "type": "object",
+      "required": ["value", "page"],
+      "properties": {
+        "value": {"type": "number"},
+        "page": {"type": "integer", "description": "Printed page number (see meta.page_basis)."},
+        "pdf_page": {"type": "integer", "description": "PDF page index if it differs from the printed page."},
+        "label": {"type": "string", "description": "Line item name as it appears in the filing."},
+        "confidence": {"type": "string", "enum": ["high", "medium", "low"], "default": "high"},
+        "rounded": {"type": "boolean", "description": "True if the filing reported this in millions and it was converted."},
+        "note": {"type": "string"}
+      }
+    }
+  }
+}

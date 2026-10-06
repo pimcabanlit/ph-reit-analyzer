@@ -1,0 +1,32 @@
+{
+  "id": "areit-2026-q1",
+  "description": "AREIT quarterly review, quarter ended March 31, 2026 (SEC Form 17-Q filed May 14, 2026). Fair value model; heavy finance lease income from sponsor entities.",
+  "input_pdf": "data/raw/areit/2026-Q1-17Q.pdf",
+  "gold_facts": "evals/gold/areit-2026-q1.facts.json",
+  "expected_metrics": {
+    "ffo": {"value": 2623384308, "tolerance": 1},
+    "affo": {"value": 2520701801, "tolerance": 1},
+    "dividend_declared_total": {"value": 2303768820, "tolerance": 1},
+    "affo_coverage": {"value": 1.0942, "tolerance": 0.0005},
+    "payout_of_distributable_income": {"value": 0.9000, "tolerance": 0.0005},
+    "nav_per_share": {"value": 36.64, "tolerance": 0.01},
+    "finance_lease_share_of_revenue": {"value": 0.193, "tolerance": 0.001},
+    "safety_light": {"value": "green"}
+  },
+  "expected_checks_pass": [
+    "balance_sheet_balances",
+    "ffo_matches_mdna",
+    "distributable_income_reconciles",
+    "dividend_total_matches_reported"
+  ],
+  "expected_flags": [
+    "straight_line_equals_fair_value_change",
+    "sponsor_finance_lease_income",
+    "related_party_lending"
+  ],
+  "skill_test_prompts": [
+    "Run a quarterly review on data/raw/areit/2026-Q1-17Q.pdf",
+    "Is AREIT's dividend safe based on its Q1 2026 report? The file is in data/raw/areit/.",
+    "Safe ba ang dividend ng AREIT ngayong quarter? Nasa data/raw/areit/2026-Q1-17Q.pdf yung report."
+  ]
+}

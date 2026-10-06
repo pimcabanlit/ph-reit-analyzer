@@ -1,0 +1,51 @@
+# Accounting models and how they change FFO
+
+Philippine standards (PAS 40) let a REIT carry investment property at either
+fair value or cost. Detect the model first; it decides the FFO formula.
+
+## How to detect
+
+Look in the investment properties note (and the accounting policies note):
+- "carried at fair value" / "fair value model" → `fair_value`
+- "cost less accumulated depreciation" / "cost model" → `cost`
+
+Record the page in `accounting_model_citation`. If the filing is unclear, set
+confidence to low and ask before computing.
+
+## Fair value model (e.g. AREIT)
+
+- No depreciation on investment property. Instead, appraisal gains and losses
+  run through net income as "net fair value change in investment properties".
+- These are paper gains/losses, so FFO removes them:
+  `FFO = net income − fair value change` (a loss is negative, so it is added back).
+- NAV shortcut: because buildings are already at appraised value, total equity
+  ÷ shares outstanding is a reasonable NAV-per-share estimate. Note it as an
+  estimate; finance lease receivables are at amortized cost, not market value.
+
+## Cost model
+
+- Buildings are depreciated, so the Investopedia-style adjustment applies:
+  `FFO = net income + real estate depreciation − gains on property sales`.
+- Only add back depreciation of real estate, not of office equipment.
+- NAV cannot be read from equity; it needs appraised values from the annual
+  report (not built yet — leave `nav_per_share` empty and say why).
+
+## Adjustments common to both
+
+- **Straight-line rent:** rent recognized evenly over a lease even when actual
+  payments step up, creating income before cash. AFFO subtracts it. PH REITs
+  often show it in their distributable income computation.
+- **Capex:** "payments for additions to investment properties" in the cash
+  flow. Filings rarely split maintenance from growth capex; subtract all of it
+  (conservative) and say so.
+- **Finance leases:** some REITs (AREIT) lease whole buildings to sponsor
+  entities under finance leases. The building leaves investment property, a
+  receivable appears, and income is booked as interest. That interest can be
+  largely non-cash in a given quarter. It stays in FFO/AFFO but is flagged.
+
+## Formulas used by `scripts/compute_metrics.py`
+
+- `AFFO = FFO − straight-line rent adjustment − capex`
+- `Dividend declared = dividend per share × shares outstanding`
+- `AFFO coverage = AFFO ÷ dividend declared`
+- `Payout of distributable income = dividend declared ÷ reported distributable income`
