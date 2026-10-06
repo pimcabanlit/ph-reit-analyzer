@@ -5,13 +5,8 @@
   "gold_facts": "evals/gold/areit-2026-h1.facts.json",
   "prior_facts": "evals/fixtures/areit-2026-q1-restated.facts.json",
   "expected_metrics": {
-    "affo_coverage": {
-      "value": 1.1211,
-      "tolerance": 0.0005
-    },
-    "derived_quarter": {
-      "value": null
-    }
+    "affo_coverage": {"value": 1.1211, "tolerance": 0.0005},
+    "derived_quarter": {"value": null}
   },
   "expected_checks_pass": [
     "balance_sheet_balances",
@@ -21,6 +16,8 @@
     "prior_period_mismatch",
     "sponsor_finance_lease_income",
     "related_party_lending",
-    "shares_issued_in_period"
+    "shares_issued_in_period",
+    "subsequent_share_issuance",
+    "subsequent_cash_acquisition"
   ]
 }

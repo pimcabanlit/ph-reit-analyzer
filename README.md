@@ -14,7 +14,7 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 
 ## Status
 
-Version 0.5: quarterly review workflow only. Q1 filings are analyzed for the
+Version 0.6: quarterly review workflow only. Q1 filings are analyzed for the
 quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
 flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
 2026 from the Q2 17-Q (extracted by the skill, pending owner verification).

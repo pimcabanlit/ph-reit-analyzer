@@ -93,8 +93,23 @@ def validate(doc, schema=None):
                 for key in ("dividend_per_share", "shares", "reported_total"):
                     if key in d:
                         check_fact(f"{label}.{key}", d[key])
-    elif "dividend_per_share_declared" not in facts:
+    if dividends is None and "dividend_per_share_declared" not in facts:
         errors.append("No dividend: add facts.dividend_per_share_declared, or a dividends list for multi-quarter periods")
+
+    for section in ("trailing_dividends", "share_issuances", "share_issuance_totals", "subsequent_events"):
+        entries = doc.get(section, [])
+        spec = schema["properties"][section]["items"]
+        for i, entry in enumerate(entries, 1):
+            label = f"{section}[{i}]"
+            for key in spec["required"]:
+                if key not in entry:
+                    errors.append(f"{label}: missing {key}")
+            for key, item in entry.items():
+                if spec["properties"].get(key, {}).get("$ref"):
+                    check_fact(f"{label}.{key}", item)
+            enum = spec["properties"].get("type", {}).get("enum")
+            if enum and entry.get("type") not in enum:
+                errors.append(f"{label}: type {entry.get('type')!r} must be one of {enum}")
 
     for key in ("capex_investment_property", "straight_line_rent_adjustment", "shares_outstanding"):
         value = facts.get(key, {}).get("value")

@@ -38,11 +38,18 @@ check on the trend, not a reported figure.
 | Coverage (AFFO ÷ dividend) | x.xx | computed |
 
 ## Checks
-<list each validation check: passed / needs review, one line each>
+<list each validation check: passed / needs review, one line each. If a
+check says a row is likely a typo in the filing, say so plainly and give the
+corrected figure.>
 
 ## Other figures
 - Payout of distributable income: <x>%
-- NAV per share (estimate): ₱<x> — <one-line caveat>
+- NAV per share (book): ₱<x>, p.<n> · "<label>"
+- Price ÷ NAV: <x.xx>x — ₱<close> close for <quarter>, p.<n> · "<label>" · Close
+- Dividend yield: <x.xx>% on the latest quarter × 4 (₱<dps> × 4 = ₱<annual>);
+  <x.xx>% on the last four quarters declared (₱<sum>: <quarter ₱dps, ...>)
+- Assets not at fair value: <x.x>% (finance lease receivables ÷ total assets) —
+  carried at amortized cost, so book NAV is partly not market-based
 - Sponsor ownership: <x>%
 
 ---

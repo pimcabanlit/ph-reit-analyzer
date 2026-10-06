@@ -52,6 +52,36 @@ Thresholds below are starting assumptions. Tune them as more REITs are tested.
 - **Plain wording:** "The REIT issued X new shares (Y% more) during the period,
   mostly to the sponsor in exchange for properties. Later dividends are shared
   across more shares, while the new properties have only just started earning."
+  When the detail compares the issue price with NAV per share before the
+  issuance, add: "They were issued at ₱P per share, Q% above the ₱N book value
+  per share." Say that the filing gives transaction values (described as
+  within a third-party fairness opinion's range), not independent appraisals.
+
+## subsequent_share_issuance (worth_knowing)
+
+- **Detect:** a `share_issuance` entry in `subsequent_events`.
+- **Why it matters:** more shares will share future dividends. The implied
+  price (transaction value ÷ shares, derived) compared with NAV per share
+  and with earlier swap prices shows whether existing holders are diluted.
+- **Plain wording:** "After the period, the board approved issuing X new
+  shares to the sponsor for properties worth ₱Y, about ₱Z per share (our
+  calculation; the filing gives no price), close to / above / below the
+  ₱N book value per share. Earlier swaps were priced at ₱A and ₱B."
+
+## subsequent_cash_acquisition (worth_knowing)
+
+- **Detect:** a `cash_acquisition` entry in `subsequent_events`.
+- **Why it matters:** a purchase far larger than cash on hand will likely be
+  funded with debt or credit lines, which affects leverage and interest cost.
+- **Plain wording:** "After the period, the board approved a ₱X cash
+  purchase, while the REIT held ₱Y in cash at period end; it has ₱Z of
+  unused credit lines."
+
+## subsequent_event (worth_knowing)
+
+- **Detect:** any other entry in `subsequent_events` (debt, other).
+- **Plain wording:** one plain sentence describing the event and its effect
+  on shares, debt or dividends.
 
 ## prior_period_mismatch (needs_review)
 

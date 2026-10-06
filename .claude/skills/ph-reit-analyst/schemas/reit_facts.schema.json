@@ -76,8 +76,72 @@
         "net_income_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: net income for the latest quarter as printed in the filing's quarter column. Cross-checks the derived quarter."},
         "fair_value_change_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: fair value change for the latest quarter as printed. Cross-checks the derived quarter."},
         "mdna_net_income_before_fv_change": {"$ref": "#/$defs/fact", "description": "Cross-check only."},
-        "reported_nav_per_share": {"$ref": "#/$defs/fact", "description": "NAV per share as reported by the company. Cross-check only."},
+        "reported_nav_per_share": {"$ref": "#/$defs/fact", "description": "NAV per share as reported by the company. Cross-check, and the basis for price / NAV."},
+        "reported_nav_per_share_prior": {"$ref": "#/$defs/fact", "description": "Reported NAV per share at the prior year-end. Compared with issue prices of shares issued during the period."},
+        "market_price_close": {"$ref": "#/$defs/fact", "description": "Closing share price for the latest quarter from the filing's market information table."},
+        "available_credit_line": {"$ref": "#/$defs/fact", "description": "Unused credit lines available at period end, as disclosed."},
         "sponsor_ownership_pct": {"$ref": "#/$defs/fact"}
+      }
+    },
+    "trailing_dividends": {
+      "type": "array",
+      "description": "Dividend per share declared for each of the last four quarters up to and including the latest quarter, for the trailing yield.",
+      "items": {
+        "type": "object",
+        "required": ["for_period", "dividend_per_share"],
+        "properties": {
+          "for_period": {"type": "string", "examples": ["2025-Q3"]},
+          "dividend_per_share": {"$ref": "#/$defs/fact"}
+        }
+      }
+    },
+    "share_issuances": {
+      "type": "array",
+      "description": "Rows of the share issuance (property-for-share swap) table, including comparative-year rows.",
+      "items": {
+        "type": "object",
+        "required": ["property", "year", "transaction_value", "shares", "issue_price", "paid_up_capital", "apic"],
+        "properties": {
+          "property": {"type": "string"},
+          "year": {"type": "integer"},
+          "transaction_value": {"$ref": "#/$defs/fact"},
+          "shares": {"$ref": "#/$defs/fact"},
+          "issue_price": {"$ref": "#/$defs/fact"},
+          "paid_up_capital": {"$ref": "#/$defs/fact"},
+          "apic": {"$ref": "#/$defs/fact"},
+          "nav_before": {"$ref": "#/$defs/fact", "description": "Latest reported NAV per share before the issuance that this filing discloses."}
+        }
+      }
+    },
+    "share_issuance_totals": {
+      "type": "array",
+      "description": "The printed totals row of the share issuance table, one entry per year. Used to tell a typo in one row from an error in the whole table.",
+      "items": {
+        "type": "object",
+        "required": ["year", "transaction_value", "paid_up_capital", "apic"],
+        "properties": {
+          "year": {"type": "integer"},
+          "transaction_value": {"$ref": "#/$defs/fact"},
+          "shares": {"$ref": "#/$defs/fact"},
+          "paid_up_capital": {"$ref": "#/$defs/fact"},
+          "apic": {"$ref": "#/$defs/fact"}
+        }
+      }
+    },
+    "subsequent_events": {
+      "type": "array",
+      "description": "Events after the reporting date that affect shares, debt or dividends.",
+      "items": {
+        "type": "object",
+        "required": ["date", "type", "description"],
+        "properties": {
+          "date": {"type": "string", "format": "date"},
+          "type": {"type": "string", "enum": ["share_issuance", "cash_acquisition", "debt", "dividend", "other"]},
+          "description": {"type": "string"},
+          "shares": {"$ref": "#/$defs/fact"},
+          "transaction_value": {"$ref": "#/$defs/fact"},
+          "amount": {"$ref": "#/$defs/fact"}
+        }
       }
     },
     "dividends": {
@@ -107,7 +171,8 @@
         "label": {"type": "string", "description": "Exact text printed on the cited page (line item name or a short phrase next to the value), so a reader can search the PDF for it. Context goes in column or note, not here. scripts/check_citations.py verifies it."},
         "column": {"type": "string", "description": "Column header the value sits under, e.g. 'January 1 to June 30, 2026' or 'December 31, 2025'."},
         "confidence": {"type": "string", "enum": ["high", "medium", "low"], "default": "high"},
-        "rounded": {"type": "boolean", "description": "True if the filing reported this in millions and it was converted."},
+        "rounded": {"type": "boolean", "description": "True if the filing reported this rounded (in millions unless unit says otherwise) and it was converted to pesos."},
+        "unit": {"type": "string", "enum": ["million", "billion"], "default": "million", "description": "Unit the rounded figure was printed in."},
         "note": {"type": "string"}
       }
     }

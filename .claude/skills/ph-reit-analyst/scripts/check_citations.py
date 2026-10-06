@@ -26,13 +26,16 @@ def normalize(text):
     return re.sub(r"\s+", " ", text.replace("₱", "P")).strip().lower()
 
 
-def printed_forms(value, rounded):
+def printed_forms(value, rounded, unit="million"):
     """Ways the filing may print this value."""
     forms = set()
     if rounded:
-        forms.add(f"{abs(value) / 1e6:,.2f}")
+        scale = 1e9 if unit == "billion" else 1e6
+        forms.update({f"{abs(value) / scale:,.2f}", f"{abs(value) / scale:,.1f}"})
     if float(value).is_integer() and abs(value) >= 1000:
         forms.add(f"{abs(value):,.0f}")
+    elif abs(value) >= 1000:
+        forms.add(f"{abs(value):,.2f}")
     else:
         forms.add(f"{value:.2f}")
     return forms
@@ -41,10 +44,13 @@ def printed_forms(value, rounded):
 def iter_facts(doc):
     for key, item in doc.get("facts", {}).items():
         yield key, item
-    for d in doc.get("dividends", []):
-        for key in ("dividend_per_share", "shares", "reported_total"):
-            if key in d:
-                yield f"dividends {d.get('for_period', '?')} {key}", d[key]
+    for section, name_key in (("dividends", "for_period"), ("trailing_dividends", "for_period"),
+                              ("share_issuances", "property"), ("share_issuance_totals", "year"),
+                              ("subsequent_events", "date")):
+        for entry in doc.get(section, []):
+            for key, item in entry.items():
+                if isinstance(item, dict) and "value" in item:
+                    yield f"{section} {entry.get(name_key, '?')} {key}", item
 
 
 def check(doc, page_text):
@@ -64,7 +70,7 @@ def check(doc, page_text):
             rows.append(("FAIL", key, f"label not found on p.{item.get('page')}: \"{label}\""))
         else:
             rows.append(("PASS", key, f"p.{item.get('page')} \"{label}\""))
-        forms = printed_forms(item["value"], item.get("rounded"))
+        forms = printed_forms(item["value"], item.get("rounded"), item.get("unit", "million"))
         if not any(normalize(form) in text for form in forms):
             rows.append(("FAIL", f"{key} value", f"{' or '.join(sorted(forms))} not found on p.{item.get('page')}"))
     return rows

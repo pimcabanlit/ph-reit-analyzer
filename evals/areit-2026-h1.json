@@ -12,7 +12,7 @@
     "dividend_per_share_for_period": {"value": 1.25, "tolerance": 0.0001},
     "affo_coverage": {"value": 1.1211, "tolerance": 0.0005},
     "payout_of_distributable_income": {"value": 0.8766, "tolerance": 0.0005},
-    "nav_per_share": {"value": 37.60, "tolerance": 0.01},
+    "nav_per_share": {"value": 37.6, "tolerance": 0.01},
     "finance_lease_share_of_revenue": {"value": 0.2433, "tolerance": 0.001},
     "safety_light": {"value": "green"},
     "derived_quarter.period": {"value": "2026-Q2"},
@@ -20,7 +20,15 @@
     "derived_quarter.affo": {"value": 2998274384, "tolerance": 1},
     "derived_quarter.dividend_declared": {"value": 2618839325, "tolerance": 1},
     "derived_quarter.affo_coverage": {"value": 1.1449, "tolerance": 0.0005},
-    "derived_quarter.safety_light": {"value": "green"}
+    "derived_quarter.safety_light": {"value": "green"},
+    "valuation.price": {"value": 37.35, "tolerance": 0.0001},
+    "valuation.nav_per_share_reported": {"value": 37.6, "tolerance": 0.0001},
+    "valuation.price_to_nav": {"value": 0.9934, "tolerance": 0.0005},
+    "valuation.yield_latest_quarter_x4.annualized_dividend_per_share": {"value": 2.52, "tolerance": 0.0001},
+    "valuation.yield_latest_quarter_x4.yield": {"value": 0.0675, "tolerance": 0.0001},
+    "valuation.yield_trailing_four_quarters.dividend_per_share": {"value": 2.49, "tolerance": 0.0001},
+    "valuation.yield_trailing_four_quarters.yield": {"value": 0.0667, "tolerance": 0.0001},
+    "assets_not_at_fair_value_share.value": {"value": 0.3283, "tolerance": 0.0005}
   },
   "expected_checks_pass": [
     "balance_sheet_balances",
@@ -33,10 +41,23 @@
   "expected_flags": [
     "sponsor_finance_lease_income",
     "related_party_lending",
-    "shares_issued_in_period"
+    "shares_issued_in_period",
+    "subsequent_share_issuance",
+    "subsequent_cash_acquisition"
   ],
   "skill_test_prompts": [
     "Run a quarterly review on data/raw/areit/2026-Q2-17Q.pdf",
     "Is AREIT's dividend still covered after the mall infusion? Report is in data/raw/areit/2026-Q2-17Q.pdf"
+  ],
+  "expected_share_issuances": {
+    "Ayala Malls Feliz": {"adds_up": false, "apic_implied": 3219410793},
+    "Ayala Center Cebu Mall": {"adds_up": true, "issue_price_vs_nav_before": 0.2073}
+  },
+  "expected_subsequent_events": [
+    {"type": "share_issuance", "shares": 462481990, "transaction_value": 17333824985.2, "implied_price_derived": 37.48, "implied_price_vs_nav": -0.0032},
+    {"type": "cash_acquisition", "amount": 2616897832, "cash_at_period_end": 30868040, "available_credit_line": 23500000000}
+  ],
+  "expected_checks_review": [
+    "share_issuance_table_adds_up"
   ]
 }

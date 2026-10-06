@@ -23,7 +23,7 @@ from pathlib import Path
 
 SKILL_SCRIPTS = Path(__file__).resolve().parent.parent / ".claude" / "skills" / "ph-reit-analyst" / "scripts"
 sys.path.insert(0, str(SKILL_SCRIPTS))
-from check_citations import check as check_citations  # noqa: E402
+from check_citations import check as check_citations, iter_facts  # noqa: E402
 from check_report import check as check_report  # noqa: E402
 from compute_metrics import compute  # noqa: E402
 from validate_facts import validate  # noqa: E402
@@ -45,17 +45,18 @@ def compare_extraction(facts_doc, gold_doc):
             rows.append(("WARN", f"fact {key}", f"value ok, page {x.get('page')} vs gold {g.get('page')}"))
         else:
             rows.append(("FAIL", f"fact {key}", f"{x['value']:,} vs gold {g['value']:,}"))
-    got_divs = {d["for_period"]: d for d in facts_doc.get("dividends", [])}
-    for g in gold_doc.get("dividends", []):
-        x = got_divs.get(g["for_period"])
-        for key in ("dividend_per_share", "shares"):
-            name = f"dividend {g['for_period']} {key}"
-            if x is None or key not in x:
-                rows.append(("FAIL", name, "missing"))
-            elif abs(x[key]["value"] - g[key]["value"]) > 1e-6:
-                rows.append(("FAIL", name, f"{x[key]['value']:,} vs gold {g[key]['value']:,}"))
-            else:
-                rows.append(("PASS", name, f"{x[key]['value']:,} p.{x[key].get('page')}"))
+    # Lists (dividends, share issuances, subsequent events, ...): compare every fact by its name
+    got_items = {name: item for name, item in iter_facts(facts_doc) if " " in name}
+    for name, g in iter_facts(gold_doc):
+        if " " not in name:
+            continue  # plain facts are compared above
+        x = got_items.get(name)
+        if x is None:
+            rows.append(("FAIL", name, "missing"))
+        elif abs(x["value"] - g["value"]) > 1e-6:
+            rows.append(("FAIL", name, f"{x['value']:,} vs gold {g['value']:,}"))
+        else:
+            rows.append(("PASS", name, f"{x['value']:,} p.{x.get('page')}"))
     if facts_doc["meta"].get("accounting_model") != gold_doc["meta"].get("accounting_model"):
         rows.append(("FAIL", "meta accounting_model", f"{facts_doc['meta'].get('accounting_model')} vs gold {gold_doc['meta'].get('accounting_model')}"))
     else:
@@ -78,6 +79,16 @@ def citation_rows(facts_doc, pdf_path):
         return [(s, f"cite {name}", d) for s, name, d in check_citations(facts_doc, page_text)]
 
 
+def compare_value(name, got, expected):
+    """Booleans and strings must match; numbers within 0.01% (at least 0.0001)."""
+    if got is None:
+        return ("FAIL", name, "missing")
+    if isinstance(expected, (bool, str)):
+        return ("PASS" if got == expected else "FAIL", name, f"{got} (expected {expected})")
+    tolerance = max(abs(expected) * 1e-4, 1e-4)
+    return ("PASS" if abs(got - expected) <= tolerance else "FAIL", name, f"{got:,} (expected {expected:,})")
+
+
 def compare_analysis(result, case):
     rows = []
     m = result["metrics"]
@@ -89,7 +100,7 @@ def compare_analysis(result, case):
             rows.append(("PASS" if got is None else "FAIL", f"metric {key}", f"{got} (expected none)"))
         elif got is None:
             rows.append(("FAIL", f"metric {key}", "missing"))
-        elif isinstance(exp["value"], str):
+        elif isinstance(exp["value"], str) or isinstance(got, str):
             ok = got == exp["value"]
             rows.append(("PASS" if ok else "FAIL", f"metric {key}", f"{got} (expected {exp['value']})"))
         else:
@@ -101,6 +112,19 @@ def compare_analysis(result, case):
     for cid in case.get("expected_checks_pass", []):
         ok = status.get(cid) == "pass"
         rows.append(("PASS" if ok else "FAIL", f"check {cid}", status.get(cid, "missing")))
+
+    for cid in case.get("expected_checks_review", []):
+        ok = status.get(cid) == "needs_review"
+        rows.append(("PASS" if ok else "FAIL", f"check {cid}", f"{status.get(cid, 'missing')} (expected needs_review)"))
+
+    issued = {r["property"]: r for r in m.get("share_issuances") or []}
+    for prop, exp in case.get("expected_share_issuances", {}).items():
+        rows += [compare_value(f"issuance {prop} {k}", (issued.get(prop) or {}).get(k), v) for k, v in exp.items()]
+
+    events = m.get("subsequent_events") or []
+    for i, exp in enumerate(case.get("expected_subsequent_events", [])):
+        got = next((e for e in events if e["type"] == exp["type"]), {})
+        rows += [compare_value(f"event {exp['type']} {k}", got.get(k), v) for k, v in exp.items() if k != "type"]
 
     flagged = {fl["id"] for fl in result["flags"]}
     expected = set(case.get("expected_flags", []))

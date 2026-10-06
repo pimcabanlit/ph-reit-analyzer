@@ -69,11 +69,11 @@ def collect_numbers(obj, out):
 
 
 def candidates(values):
-    """Each source value as it might appear: as is, in millions, or as a percent."""
+    """Each source value as it might appear: as is, in millions or billions, or as a percent."""
     out = set()
     for v in values + ALLOWED_CONSTANTS:
         a = abs(v)
-        out.update((a, a / 1e6, a * 100))
+        out.update((a, a / 1e6, a / 1e9, a * 100))
     return out
 
 

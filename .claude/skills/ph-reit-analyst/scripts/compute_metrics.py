@@ -46,6 +46,7 @@ class Facts:
         self.meta = doc["meta"]
         self.items = doc["facts"]
         self.dividends = doc.get("dividends")
+        self.doc = doc
 
     def get(self, key, required=True):
         item = self.items.get(key)
@@ -161,6 +162,14 @@ def compute(doc, prior_doc=None):
 
     derived, derived_checks, derived_flags = derive_quarter(f, prior_doc, flows, breakdown)
     metrics["derived_quarter"] = derived
+    metrics["valuation"] = valuation(f, breakdown)
+    fl_receivable = f.get("finance_lease_receivable", required=False)
+    metrics["assets_not_at_fair_value_share"] = (
+        {"value": fl_receivable / assets, "basis": "finance lease receivables / total assets",
+         "finance_lease_receivable": fl_receivable, "total_assets": assets}
+        if model == "fair_value" and fl_receivable is not None else None)
+    metrics["share_issuances"], issuance_checks = share_issuances(f)
+    metrics["subsequent_events"], event_flags = subsequent_events(f, metrics["share_issuances"])
 
     bridge = [
         {"step": "Net income", "value": net_income, **f.source("net_income")},
@@ -196,9 +205,118 @@ def compute(doc, prior_doc=None):
         "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "filing_date", "accounting_model", "source_file")},
         "metrics": metrics,
         "bridge": bridge,
-        "checks": run_checks(f, ffo, nav_per_share) + derived_checks,
-        "flags": detect_flags(f, coverage, fl_share) + derived_flags,
+        "checks": run_checks(f, ffo, nav_per_share) + derived_checks + issuance_checks,
+        "flags": detect_flags(f, coverage, fl_share, metrics["share_issuances"]) + derived_flags + event_flags,
     }
+
+
+def quarter_index(label):
+    """'2026-Q2' -> 2026 * 4 + 1, so consecutive quarters differ by 1."""
+    year, _, q = label.partition("-Q")
+    return int(year) * 4 + int(q) - 1
+
+
+def valuation(f, breakdown):
+    """Price / NAV and dividend yield on two labeled bases, from the filing's own price."""
+    price = f.get("market_price_close", required=False)
+    if price is None:
+        return None
+    nav = f.get("reported_nav_per_share", required=False)
+    latest = max(breakdown, key=lambda b: quarter_index(b["for_period"]))
+    run_rate = latest["dividend_per_share"] * 4
+    result = {
+        "price": price,
+        "price_source": f.source("market_price_close"),
+        "nav_per_share_reported": nav,
+        "nav_source": f.source("reported_nav_per_share"),
+        "price_to_nav": price / nav if nav else None,
+        "yield_latest_quarter_x4": {"basis": f"latest quarter ({latest['for_period']}) x 4",
+                                    "dividend_per_share": latest["dividend_per_share"],
+                                    "annualized_dividend_per_share": run_rate, "yield": run_rate / price},
+        "yield_trailing_four_quarters": None,
+    }
+    trailing = f.doc.get("trailing_dividends") or []
+    quarters = sorted(trailing, key=lambda d: quarter_index(d["for_period"]))
+    idx = [quarter_index(d["for_period"]) for d in quarters]
+    if len(quarters) == 4 and idx == list(range(idx[0], idx[0] + 4)) and quarters[-1]["for_period"] == latest["for_period"]:
+        total = sum(d["dividend_per_share"]["value"] for d in quarters)
+        result["yield_trailing_four_quarters"] = {
+            "basis": f"dividends declared for {quarters[0]['for_period']} to {quarters[-1]['for_period']}",
+            "quarters": [{"for_period": d["for_period"], "dividend_per_share": d["dividend_per_share"]["value"],
+                          **cite(d["dividend_per_share"])} for d in quarters],
+            "dividend_per_share": total, "yield": total / price}
+    elif trailing:
+        result["trailing_note"] = "trailing_dividends must be four consecutive quarters ending with the latest quarter"
+    return result
+
+
+def share_issuances(f):
+    """Check each row of the issuance table and compare issue prices with the NAV before the issuance."""
+    rows = f.doc.get("share_issuances") or []
+    if not rows:
+        return [], []
+    out, problems = [], []
+    totals = {t["year"]: t for t in f.doc.get("share_issuance_totals") or []}
+    for r in rows:
+        value, paid, apic = r["transaction_value"]["value"], r["paid_up_capital"]["value"], r["apic"]["value"]
+        nav_before = r["nav_before"]["value"] if r.get("nav_before") else None
+        row = {"property": r["property"], "year": r["year"], "transaction_value": value, "shares": r["shares"]["value"],
+               "issue_price": r["issue_price"]["value"], "paid_up_capital": paid, "apic": apic,
+               "adds_up": abs(paid + apic - value) <= 1, "apic_implied": value - paid,
+               "nav_before": nav_before, "nav_before_source": cite(r.get("nav_before")) if nav_before else None,
+               "issue_price_vs_nav_before": r["issue_price"]["value"] / nav_before - 1 if nav_before else None}
+        out.append(row)
+        if not row["adds_up"]:
+            problems.append(f"{r['property']} ({r['year']}): paid-up capital {paid:,} + APIC {apic:,} = {paid + apic:,} "
+                            f"vs transaction value {value:,}; transaction value - paid-up capital = {value - paid:,}")
+    if not problems:
+        return out, [_check("share_issuance_table_adds_up", True, f"paid-up capital + APIC = transaction value in all {len(rows)} rows")]
+    notes = []
+    for year in sorted({r["year"] for r in out if not r["adds_up"]}):
+        tot = totals.get(year)
+        if tot is None:
+            continue
+        implied = sum(r["apic_implied"] for r in out if r["year"] == year)
+        if abs(implied - tot["apic"]["value"]) <= len(out):
+            notes.append(f"the printed {year} APIC total {tot['apic']['value']:,} matches the rows' implied APIC, "
+                         f"so the printed row is likely a typo in the filing")
+    detail = "; ".join(problems + notes)
+    return out, [_check("share_issuance_table_adds_up", False, detail, review=True)]
+
+
+def subsequent_events(f, issuances):
+    """Summarize events after the reporting date; the implied swap price is derived, not disclosed."""
+    events, flags = [], []
+    nav = f.get("reported_nav_per_share", required=False)
+    for e in f.doc.get("subsequent_events") or []:
+        out = {"date": e["date"], "type": e["type"], "description": e["description"]}
+        if e["type"] == "share_issuance" and e.get("shares") and e.get("transaction_value"):
+            shares, value = e["shares"]["value"], e["transaction_value"]["value"]
+            implied = value / shares
+            out.update(shares=shares, transaction_value=value, implied_price_derived=implied,
+                       implied_price_vs_nav=implied / nav - 1 if nav else None)
+            earlier = sorted({r["issue_price"] for r in issuances})
+            vs_nav = f", {implied / nav - 1:+.1%} vs reported NAV per share {nav:.2f}" if nav else ""
+            flags.append({"id": "subsequent_share_issuance", "severity": "worth_knowing",
+                          "detail": f"{e['date']}: {shares:,} new shares for a transaction value of {value:,.2f}; implied price "
+                                    f"{implied:.2f} per share (derived: value / shares; not stated in the filing){vs_nav}. "
+                                    f"Earlier swaps in this filing: {', '.join(f'{p:.2f}' for p in earlier)}.",
+                          "pages": [e["shares"]["page"], e["transaction_value"]["page"]]})
+        elif e["type"] == "cash_acquisition" and e.get("amount"):
+            amount, cash = e["amount"]["value"], f.get("cash", required=False)
+            credit = f.get("available_credit_line", required=False)
+            out.update(amount=amount, cash_at_period_end=cash, available_credit_line=credit,
+                       amount_to_cash=amount / cash if cash else None)
+            extra = f" ({amount / cash:.1f}x)" if cash else ""
+            extra += f"; available credit line {credit:,}" if credit else ""
+            flags.append({"id": "subsequent_cash_acquisition", "severity": "worth_knowing",
+                          "detail": f"{e['date']}: cash purchase of {amount:,} vs cash of {cash:,} at period end{extra}.",
+                          "pages": [e["amount"]["page"], f.page("cash")]})
+        else:
+            flags.append({"id": "subsequent_event", "severity": "worth_knowing",
+                          "detail": f"{e['date']}: {e['description']}", "pages": []})
+        events.append(out)
+    return events, flags
 
 
 def derive_quarter(f, prior_doc, flows, breakdown):
@@ -341,7 +459,7 @@ def run_checks(f, ffo, nav_per_share):
     return checks
 
 
-def detect_flags(f, coverage, fl_share):
+def detect_flags(f, coverage, fl_share, issuances=()):
     flags = []
 
     sl = f.get("straight_line_rent_adjustment", required=False)
@@ -382,7 +500,10 @@ def detect_flags(f, coverage, fl_share):
         flags.append({
             "id": "shares_issued_in_period",
             "severity": "worth_knowing",
-            "detail": f"Shares outstanding rose {shares - shares_prior:,} ({(shares - shares_prior) / shares_prior:.1%}) during the period.",
+            "detail": f"Shares outstanding rose {shares - shares_prior:,} ({(shares - shares_prior) / shares_prior:.1%}) during the period."
+                      + "".join(f" Issued at {price:.2f} per share vs NAV per share {nav:.2f} before the issuance ({price / nav - 1:+.1%})."
+                                for price, nav in sorted({(r["issue_price"], r["nav_before"]) for r in issuances
+                                                          if r["nav_before"] and str(r["year"]) == f.meta["period_end"][:4]})),
             "pages": [f.page("shares_outstanding"), f.page("shares_outstanding_prior")],
         })
 
@@ -412,6 +533,15 @@ def print_summary(result):
         print(f"Payout of distributable income: {m['payout_of_distributable_income']:.1%}")
     if m["nav_per_share"] is not None:
         print(f"NAV per share (estimate): {m['nav_per_share']:.2f}")
+    v = m.get("valuation")
+    if v:
+        trailing = v["yield_trailing_four_quarters"]
+        print(f"Price {v['price']:.2f} / NAV {v['nav_per_share_reported']:.2f} = {v['price_to_nav']:.2f}x; "
+              f"yield {v['yield_latest_quarter_x4']['yield']:.2%} ({v['yield_latest_quarter_x4']['basis']})"
+              + (f", {trailing['yield']:.2%} (trailing four quarters)" if trailing else ""))
+    if m.get("assets_not_at_fair_value_share"):
+        print(f"Assets not at fair value: {m['assets_not_at_fair_value_share']['value']:.1%} "
+              f"({m['assets_not_at_fair_value_share']['basis']})")
     dq = m.get("derived_quarter")
     if dq and dq["affo_coverage"] is not None:
         print(f"Standalone {dq['period']} (derived): AFFO {dq['affo'] / 1e6:,.1f}M, "

@@ -54,7 +54,10 @@
     "reported_distributable_income": {"value": 5615331594, "page": 18, "label": "Distributable income", "column": "June 30, 2026"},
     "mdna_net_income_before_fv_change": {"value": 5829570000, "page": 22, "label": "5,829.57 million", "rounded": true, "note": "MD&A: 'Net income before the net fair value change in investment properties grew by 36% ... to P5,829.57 million in 6M 2026'."},
     "reported_nav_per_share": {"value": 37.6, "page": 27, "label": "Net asset value (NAV) per share", "column": "June 30, 2026"},
-    "sponsor_ownership_pct": {"value": 58.94, "page": 11, "label": "58.94% collectively owned by Ayala Land"}
+    "sponsor_ownership_pct": {"value": 58.94, "page": 11, "label": "58.94% collectively owned by Ayala Land"},
+    "reported_nav_per_share_prior": {"value": 36.57, "page": 27, "label": "Net asset value (NAV) per share", "column": "December 31, 2025"},
+    "market_price_close": {"value": 37.35, "page": 27, "label": "2Q 2026", "column": "Close", "note": "Market Information table: closing price for 2Q 2026."},
+    "available_credit_line": {"value": 23500000000, "page": 21, "label": "available credit line with various local banks", "rounded": true, "unit": "billion", "column": "as at June 30, 2026"}
   },
   "dividends": [
     {
@@ -68,6 +71,149 @@
       "dividend_per_share": {"value": 0.63, "page": 21, "label": "for the second quarter of 2026", "note": "Declared August 10, 2026 at P0.63 per common share (Note 19, Events After Financial Reporting Date); also p.29."},
       "shares": {"value": 4156887818, "page": 4, "label": "Common shares", "note": "Record date August 25, 2026; the August 10 share swap still needed SEC approval. Confirmed by the reported total.", "column": "Number of shares issued and outstanding, as of June 30, 2026"},
       "reported_total": {"value": 2618840000, "page": 29, "label": "2,618.84 million", "rounded": true}
+    }
+  ],
+  "trailing_dividends": [
+    {
+      "for_period": "2025-Q3",
+      "dividend_per_share": {"value": 0.62, "page": 18, "label": "Q3 of 2025", "note": "2025 dividend table: approved November 12, 2025."}
+    },
+    {
+      "for_period": "2025-Q4",
+      "dividend_per_share": {"value": 0.62, "page": 18, "label": "for the fourth quarter of 2025", "note": "Approved February 19, 2026."}
+    },
+    {
+      "for_period": "2026-Q1",
+      "dividend_per_share": {"value": 0.62, "page": 18, "label": "for the first quarter of 2026"}
+    },
+    {
+      "for_period": "2026-Q2",
+      "dividend_per_share": {"value": 0.63, "page": 21, "label": "for the second quarter of 2026"}
+    }
+  ],
+  "share_issuances": [
+    {
+      "property": "Ayala Center Cebu Mall",
+      "year": 2026,
+      "transaction_value": {"value": 15313825380, "page": 18, "label": "Ayala Center Cebu Mall", "column": "Transaction value"},
+      "shares": {"value": 346859012, "page": 18, "label": "Ayala Center Cebu Mall", "column": "Number of Shares"},
+      "issue_price": {"value": 44.15, "page": 18, "label": "Ayala Center Cebu Mall", "column": "Issue Price"},
+      "paid_up_capital": {"value": 3468590120, "page": 18, "label": "Ayala Center Cebu Mall", "column": "Paid-up Capital"},
+      "apic": {"value": 11845235260, "page": 18, "label": "Ayala Center Cebu Mall", "column": "Additional Paid-in Capital"},
+      "nav_before": {"value": 36.57, "page": 27, "label": "Net asset value (NAV) per share", "column": "December 31, 2025", "note": "Latest NAV this filing reports before the June 25, 2026 issuance."}
+    },
+    {
+      "property": "Ayala Malls Feliz",
+      "year": 2026,
+      "transaction_value": {"value": 4162137233, "page": 18, "label": "Ayala Malls Feliz", "column": "Transaction value"},
+      "shares": {"value": 94272644, "page": 18, "label": "Ayala Malls Feliz", "column": "Number of Shares"},
+      "issue_price": {"value": 44.15, "page": 18, "label": "Ayala Malls Feliz", "column": "Issue Price"},
+      "paid_up_capital": {"value": 942726440, "page": 18, "label": "Ayala Malls Feliz", "column": "Paid-up Capital"},
+      "apic": {"value": 4162137233, "page": 18, "label": "Ayala Malls Feliz", "column": "Additional Paid-in Capital", "note": "As printed. Paid-up capital + APIC exceeds the transaction value; see the share_issuance_table_adds_up check."},
+      "nav_before": {"value": 36.57, "page": 27, "label": "Net asset value (NAV) per share", "column": "December 31, 2025", "note": "Latest NAV this filing reports before the June 25, 2026 issuance."}
+    },
+    {
+      "property": "Central Bloc Office 1",
+      "year": 2025,
+      "transaction_value": {"value": 2262316163, "page": 18, "label": "Central Bloc Office 1", "column": "Transaction value"},
+      "shares": {"value": 54513642, "page": 18, "label": "Central Bloc Office 1", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Central Bloc Office 1", "column": "Issue Price"},
+      "paid_up_capital": {"value": 545136420, "page": 18, "label": "Central Bloc Office 1", "column": "Paid-up Capital"},
+      "apic": {"value": 1717179743, "page": 18, "label": "Central Bloc Office 1", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Central Bloc Office 2",
+      "year": 2025,
+      "transaction_value": {"value": 2662465043, "page": 18, "label": "Central Bloc Office 2", "column": "Transaction value"},
+      "shares": {"value": 64155784, "page": 18, "label": "Central Bloc Office 2", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Central Bloc Office 2", "column": "Issue Price"},
+      "paid_up_capital": {"value": 641557840, "page": 18, "label": "Central Bloc Office 2", "column": "Paid-up Capital"},
+      "apic": {"value": 2020907203, "page": 18, "label": "Central Bloc Office 2", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Ayala Malls Central Bloc",
+      "year": 2025,
+      "transaction_value": {"value": 4403787429, "page": 18, "label": "Ayala Malls Central Bloc", "column": "Transaction value"},
+      "shares": {"value": 106115360, "page": 18, "label": "Ayala Malls Central Bloc", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Ayala Malls Central Bloc", "column": "Issue Price"},
+      "paid_up_capital": {"value": 1061153600, "page": 18, "label": "Ayala Malls Central Bloc", "column": "Paid-up Capital"},
+      "apic": {"value": 3342633829, "page": 18, "label": "Ayala Malls Central Bloc", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Seda Central Bloc",
+      "year": 2025,
+      "transaction_value": {"value": 1466879162, "page": 18, "label": "Seda Central Bloc", "column": "Transaction value"},
+      "shares": {"value": 35346486, "page": 18, "label": "Seda Central Bloc", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Seda Central Bloc", "column": "Issue Price"},
+      "paid_up_capital": {"value": 353464860, "page": 18, "label": "Seda Central Bloc", "column": "Paid-up Capital"},
+      "apic": {"value": 1113414302, "page": 18, "label": "Seda Central Bloc", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Ayala Malls Abreeza",
+      "year": 2025,
+      "transaction_value": {"value": 3933967273, "page": 18, "label": "Ayala Malls Abreeza", "column": "Transaction value"},
+      "shares": {"value": 94794392, "page": 18, "label": "Ayala Malls Abreeza", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Ayala Malls Abreeza", "column": "Issue Price"},
+      "paid_up_capital": {"value": 947943920, "page": 18, "label": "Ayala Malls Abreeza", "column": "Paid-up Capital"},
+      "apic": {"value": 2986023353, "page": 18, "label": "Ayala Malls Abreeza", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Abreeza Corporate Center",
+      "year": 2025,
+      "transaction_value": {"value": 731632200, "page": 18, "label": "Abreeza Corporate Center", "column": "Transaction value"},
+      "shares": {"value": 17629692, "page": 18, "label": "Abreeza Corporate Center", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Abreeza Corporate Center", "column": "Issue Price"},
+      "paid_up_capital": {"value": 176296920, "page": 18, "label": "Abreeza Corporate Center", "column": "Paid-up Capital"},
+      "apic": {"value": 555335280, "page": 18, "label": "Abreeza Corporate Center", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Ayala Malls Centrio",
+      "year": 2025,
+      "transaction_value": {"value": 4927074187, "page": 18, "label": "Ayala Malls Centrio", "column": "Transaction value"},
+      "shares": {"value": 118724679, "page": 18, "label": "Ayala Malls Centrio", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Ayala Malls Centrio", "column": "Issue Price"},
+      "paid_up_capital": {"value": 1187246790, "page": 18, "label": "Ayala Malls Centrio", "column": "Paid-up Capital"},
+      "apic": {"value": 3739827397, "page": 18, "label": "Ayala Malls Centrio", "column": "Additional Paid-in Capital"}
+    },
+    {
+      "property": "Centrio Corporate Center",
+      "year": 2025,
+      "transaction_value": {"value": 606320889, "page": 18, "label": "Centrio Corporate Center", "column": "Transaction value"},
+      "shares": {"value": 14610142, "page": 18, "label": "Centrio Corporate Center", "column": "Number of Shares"},
+      "issue_price": {"value": 41.5, "page": 18, "label": "Centrio Corporate Center", "column": "Issue Price"},
+      "paid_up_capital": {"value": 146101420, "page": 18, "label": "Centrio Corporate Center", "column": "Paid-up Capital"},
+      "apic": {"value": 460219469, "page": 18, "label": "Centrio Corporate Center", "column": "Additional Paid-in Capital"}
+    }
+  ],
+  "share_issuance_totals": [
+    {
+      "year": 2026,
+      "transaction_value": {"value": 19475962612, "page": 18, "label": "19,475,962,612"},
+      "shares": {"value": 441131656, "page": 18, "label": "441,131,656"},
+      "paid_up_capital": {"value": 4411316560, "page": 18, "label": "4,411,316,560"},
+      "apic": {"value": 15064646052, "page": 18, "label": "15,064,646,052"}
+    },
+    {
+      "year": 2025,
+      "transaction_value": {"value": 20994442346, "page": 18, "label": "20,994,442,346"},
+      "shares": {"value": 505890177, "page": 18, "label": "505,890,177"},
+      "paid_up_capital": {"value": 5058901770, "page": 18, "label": "5,058,901,770"},
+      "apic": {"value": 15935540576, "page": 18, "label": "15,935,540,576"}
+    }
+  ],
+  "subsequent_events": [
+    {
+      "date": "2026-08-10",
+      "type": "share_issuance",
+      "description": "Board approved a property-for-share swap with ALI and four subsidiaries for commercial properties, 'as validated by a third-party fairness opinion' (Note 19a).",
+      "shares": {"value": 462481990, "page": 21, "label": "462,481,990 primary AREIT common shares"},
+      "transaction_value": {"value": 17333824985.2, "page": 21, "label": "with a transaction value of"}
+    },
+    {
+      "date": "2026-08-10",
+      "type": "cash_acquisition",
+      "description": "Board approved buying Fairmont Raffles Hotel Makati condominium units from ALI Makati Hotel and Residences, Inc. by way of cash (Note 19b).",
+      "amount": {"value": 2616897832, "page": 21, "label": "Fairmont Raffles Hotel Makati condominium units"}
     }
   ]
 }

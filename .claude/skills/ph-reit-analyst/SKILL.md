@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pdfplumber and pymupdf to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.5.0
+  version: 0.6.0
 ---
 
 # PH REIT Analyst
@@ -96,6 +96,8 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
   to dividend".
 - A derived quarter, if shown, is labeled "derived" and never replaces the
   year-to-date answer.
+- Subsequent events affecting shares, debt or dividends are under "Worth
+  knowing", with any derived figure labeled as derived.
 - The report never recommends buying, selling, or holding.
 
 ## References (read when the step needs them)
@@ -152,6 +154,13 @@ differ from the quarter column the filing prints, which usually means the
 earlier figures were restated.
 Solution: don't derive by hand. Report year-to-date only, mention the flag,
 and re-extract the earlier period from its latest filing if needed.
+
+**`share_issuance_table_adds_up` needs review**
+Cause: a row's paid-up capital + APIC differs from its transaction value.
+If the detail says the printed column total matches the other rows, the
+row is likely a typo in the filing.
+Solution: re-read the row once. If it's as printed, report it as a likely
+filing typo with the corrected figure, not as an extraction error.
 
 **`nav_per_share` is empty**
 Cause: the REIT uses the cost model, so equity doesn't reflect appraised values.

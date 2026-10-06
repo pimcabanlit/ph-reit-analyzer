@@ -30,6 +30,22 @@ confidence to low and ask before computing.
 - NAV cannot be read from equity; it needs appraised values from the annual
   report (not built yet — leave `nav_per_share` empty and say why).
 
+## NAV is secondary, and book-based
+
+- Report the company's NAV per share (equity ÷ shares) as "book NAV" and
+  price ÷ NAV from the filing's own closing price. NAV supports the dividend
+  answer; it never leads the report.
+- Fair value model: finance lease receivables are at amortized cost, not
+  market value. Show their share of total assets under "Other figures" as
+  context. Never estimate their market value: it needs a discount rate
+  assumption.
+- Interim fair value changes are often just the offset of the straight-line
+  adjustment, so interim book NAV mostly reflects the last year-end
+  appraisal.
+- Cost model: an adjusted NAV (equity + disclosed fair value − carrying
+  amount of investment property) is planned for the 17-A workflow, using the
+  fair value disclosure PAS 40 requires. Until then, leave NAV empty.
+
 ## Adjustments common to both
 
 - **Straight-line rent:** rent recognized evenly over a lease even when actual
