@@ -82,8 +82,12 @@ def compare_analysis(result, case):
     rows = []
     m = result["metrics"]
     for key, exp in case["expected_metrics"].items():
-        got = m.get(key)
-        if got is None:
+        got = m
+        for part in key.split("."):  # e.g. derived_quarter.affo_coverage
+            got = got.get(part) if isinstance(got, dict) else None
+        if exp.get("value", 0) is None:
+            rows.append(("PASS" if got is None else "FAIL", f"metric {key}", f"{got} (expected none)"))
+        elif got is None:
             rows.append(("FAIL", f"metric {key}", "missing"))
         elif isinstance(exp["value"], str):
             ok = got == exp["value"]
@@ -127,11 +131,13 @@ def main():
         if args.facts:
             rows += compare_extraction(facts_doc, gold_doc)
         rows += citation_rows(facts_doc, Path(case["input_pdf"]))
-        result = compute(facts_doc)
+        prior_doc = json.loads(Path(case["prior_facts"]).read_text()) if case.get("prior_facts") else None
+        result = compute(facts_doc, prior_doc)
         rows += compare_analysis(result, case)
         report_path = args.report or (Path(case["gold_report"]) if case.get("gold_report") else None)
         if report_path:
-            rows += [(s, f"report {name}", d) for s, name, d in check_report(report_path.read_text(), result, facts_doc)]
+            rows += [(s, f"report {name}", d) for s, name, d in
+                     check_report(report_path.read_text(), result, facts_doc, report_dir=report_path.parent)]
 
     print(f"\nEval: {case['id']}  (facts: {args.facts or case['gold_facts']})\n")
     for status, name, detail in rows:

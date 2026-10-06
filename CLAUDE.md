@@ -19,12 +19,16 @@ here; change them there.
   - `scripts/check_citations.py`: confirms every fact's label and value are on its cited PDF page
   - `scripts/validate_facts.py`: checks a facts file (runs automatically before metrics)
   - `scripts/compute_metrics.py`: FFO, AFFO, coverage, NAV, checks, flags
+  - `scripts/bridge_chart.py`: draws the earnings bridge (bridge.png) from metrics.json
   - `scripts/check_report.py`: checks a finished report against the rules
   - `requirements.txt`: PDF libraries
 - `evals/`: development tests, not part of the skill
   - `run_eval.py` + `<case>.json`: functional tests against known answers
-  - `gold/`: hand-verified facts and an example report
+  - `gold/`: hand-verified facts (`<case>.facts.json`) and one folder per case
+    with the example `report.md` and its `bridge.png`
+  - `fixtures/`: deliberately altered inputs for negative tests
   - `run_trigger_eval.py` + `triggers.json`: does the skill load when it should?
+- `docs/reference-bridge.png`: target design for the bridge chart
 - `data/raw/<ticker>/`: source PDFs, named `<YYYY>-<period>-<form>.pdf`
 - `data/facts/<ticker>/`: extracted facts, named `<YYYY>-<period>.facts.json`
 - `outputs/<ticker>/<YYYY>-<period>/`: metrics, report, charts (git-ignored)
@@ -34,7 +38,9 @@ here; change them there.
 - Propose a plan before large changes and wait for approval.
 - Keep changes small. After any change to extraction, metrics or report logic,
   run `python evals/run_eval.py` on every case in `evals/` (`areit-2026-q1.json`,
-  `areit-2026-h1.json`) and report what passes and fails.
+  `areit-2026-h1.json`, `areit-2026-h1-restated.json`) and report what passes
+  and fails. After changing `bridge_chart.py`, regenerate the gold charts and
+  look at them.
 - After changing the skill's `description`, run
   `python evals/run_trigger_eval.py` (makes one model call per prompt).
 - Keep the skill portable: no paths outside its folder, no reliance on this

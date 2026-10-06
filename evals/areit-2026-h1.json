@@ -1,9 +1,10 @@
 {
   "id": "areit-2026-h1",
-  "description": "AREIT year-to-date review, six months ended June 30, 2026 (Q2 SEC Form 17-Q filed August 14, 2026). Tests the year-to-date basis: two dividend declarations on different share counts after a June 25 property-for-share swap. Gold facts are PENDING owner verification.",
+  "description": "AREIT year-to-date review, six months ended June 30, 2026 (Q2 SEC Form 17-Q filed August 14, 2026). Tests the year-to-date basis: two dividend declarations on different share counts after a June 25 property-for-share swap. Also derives standalone Q2 from the hand-verified Q1 gold facts. Gold facts are PENDING owner verification.",
   "input_pdf": "data/raw/areit/2026-Q2-17Q.pdf",
   "gold_facts": "evals/gold/areit-2026-h1.facts.json",
-  "gold_report": "evals/gold/areit-2026-h1.report.md",
+  "gold_report": "evals/gold/areit-2026-h1/report.md",
+  "prior_facts": "evals/gold/areit-2026-q1.facts.json",
   "expected_metrics": {
     "ffo": {"value": 5829570711, "tolerance": 1},
     "affo": {"value": 5518976185, "tolerance": 1},
@@ -13,14 +14,21 @@
     "payout_of_distributable_income": {"value": 0.8766, "tolerance": 0.0005},
     "nav_per_share": {"value": 37.60, "tolerance": 0.01},
     "finance_lease_share_of_revenue": {"value": 0.2433, "tolerance": 0.001},
-    "safety_light": {"value": "green"}
+    "safety_light": {"value": "green"},
+    "derived_quarter.period": {"value": "2026-Q2"},
+    "derived_quarter.ffo": {"value": 3206186403, "tolerance": 1},
+    "derived_quarter.affo": {"value": 2998274384, "tolerance": 1},
+    "derived_quarter.dividend_declared": {"value": 2618839325, "tolerance": 1},
+    "derived_quarter.affo_coverage": {"value": 1.1449, "tolerance": 0.0005},
+    "derived_quarter.safety_light": {"value": "green"}
   },
   "expected_checks_pass": [
     "balance_sheet_balances",
     "ffo_matches_mdna",
     "distributable_income_reconciles",
     "dividend_total_matches_reported",
-    "nav_matches_reported"
+    "nav_matches_reported",
+    "derived_quarter_matches_filing"
   ],
   "expected_flags": [
     "sponsor_finance_lease_income",

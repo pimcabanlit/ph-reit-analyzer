@@ -1,0 +1,26 @@
+{
+  "id": "areit-2026-h1-restated",
+  "description": "Negative test: the Q1 facts disagree with the Q2 filing's own April-June column (as if Q1 were restated). The standalone Q2 must not be derived and prior_period_mismatch must be raised; year-to-date results are unchanged.",
+  "input_pdf": "data/raw/areit/2026-Q2-17Q.pdf",
+  "gold_facts": "evals/gold/areit-2026-h1.facts.json",
+  "prior_facts": "evals/fixtures/areit-2026-q1-restated.facts.json",
+  "expected_metrics": {
+    "affo_coverage": {
+      "value": 1.1211,
+      "tolerance": 0.0005
+    },
+    "derived_quarter": {
+      "value": null
+    }
+  },
+  "expected_checks_pass": [
+    "balance_sheet_balances",
+    "dividend_total_matches_reported"
+  ],
+  "expected_flags": [
+    "prior_period_mismatch",
+    "sponsor_finance_lease_income",
+    "related_party_lending",
+    "shares_issued_in_period"
+  ]
+}

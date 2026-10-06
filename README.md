@@ -14,10 +14,12 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 
 ## Status
 
-Version 0.3: quarterly review workflow only. Q1 filings are analyzed for the
+Version 0.5: quarterly review workflow only. Q1 filings are analyzed for the
 quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
 flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
 2026 from the Q2 17-Q (extracted by the skill, pending owner verification).
+For Q2 and Q3 filings the latest quarter alone is also derived when the
+earlier period's facts file is available, and labeled "derived".
 
 ## Install
 
@@ -43,21 +45,25 @@ Put the filing in `data/raw/<ticker>/` (for example the included
 - "Is AREIT's dividend safe this quarter?"
 - "Safe ba ang dividend ng AREIT ngayong quarter?"
 
-See [`evals/gold/areit-2026-q1.report.md`](evals/gold/areit-2026-q1.report.md)
-and [`evals/gold/areit-2026-h1.report.md`](evals/gold/areit-2026-h1.report.md)
-for examples of the report it produces.
+See [`evals/gold/areit-2026-q1/report.md`](evals/gold/areit-2026-q1/report.md)
+and [`evals/gold/areit-2026-h1/report.md`](evals/gold/areit-2026-h1/report.md)
+for examples of the report it produces, each with its earnings bridge chart
+(`bridge.png`). The chart design follows
+[`docs/reference-bridge.png`](docs/reference-bridge.png).
 
 ## Develop and test
 
 ```bash
 SKILL=.claude/skills/ph-reit-analyst
 
-# Compute metrics from the hand-verified AREIT facts
-python $SKILL/scripts/compute_metrics.py evals/gold/areit-2026-q1.facts.json
+# Compute metrics and draw the earnings bridge for 1H 2026
+python $SKILL/scripts/compute_metrics.py data/facts/areit/2026-H1.facts.json -o outputs/areit/2026-H1/metrics.json
+python $SKILL/scripts/bridge_chart.py outputs/areit/2026-H1/metrics.json
 
 # Functional eval: facts validation, metrics, checks, flags and the example report
 python evals/run_eval.py evals/areit-2026-q1.json
-python evals/run_eval.py evals/areit-2026-h1.json
+python evals/run_eval.py evals/areit-2026-h1.json            # also derives standalone Q2
+python evals/run_eval.py evals/areit-2026-h1-restated.json   # restated Q1 must block the derivation
 
 # Test a facts file or report produced by the skill against the gold answers
 python evals/run_eval.py evals/areit-2026-h1.json \

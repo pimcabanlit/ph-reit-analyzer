@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pdfplumber and pymupdf to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.4.0
+  version: 0.5.0
 ---
 
 # PH REIT Analyst
@@ -65,19 +65,38 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
    python <skill-dir>/scripts/check_citations.py data/facts/<ticker>/<YYYY>-<period>.facts.json
    ```
 3. **Validate and compute** in one step. The script refuses to calculate if
-   the facts file breaks the schema or lacks page citations:
+   the facts file breaks the schema or lacks page citations. For a Q2 or Q3
+   filing it also derives the latest quarter alone when the earlier period's
+   facts file of the same year sits in the same folder:
    ```bash
    python <skill-dir>/scripts/compute_metrics.py data/facts/<ticker>/<YYYY>-<period>.facts.json \
      -o outputs/<ticker>/<YYYY>-<period>/metrics.json
    ```
-4. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
+4. **Draw the earnings bridge** next to `metrics.json`:
+   ```bash
+   python <skill-dir>/scripts/bridge_chart.py outputs/<ticker>/<YYYY>-<period>/metrics.json
+   ```
+   It only draws what `metrics.json` contains. Look at the image before
+   moving on.
+5. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
    `references/report-template.md` and the wording in `references/red-flags.md`.
-5. **Check the report** and fix every FAIL before handing it over:
+6. **Check the report** and fix every FAIL before handing it over:
    ```bash
    python <skill-dir>/scripts/check_report.py outputs/<ticker>/<YYYY>-<period>/report.md \
      --metrics outputs/<ticker>/<YYYY>-<period>/metrics.json \
      --facts data/facts/<ticker>/<YYYY>-<period>.facts.json
    ```
+
+## Before finishing
+
+- `check_report.py` passes with no FAIL.
+- Every number in the report appears in `metrics.json` or the facts file.
+- Every check that failed or needs review is mentioned in the report.
+- `bridge.png` exists next to the report and is embedded under "From earnings
+  to dividend".
+- A derived quarter, if shown, is labeled "derived" and never replaces the
+  year-to-date answer.
+- The report never recommends buying, selling, or holding.
 
 ## References (read when the step needs them)
 
@@ -125,6 +144,14 @@ mention the check in the report, and don't explain it away.
 **Pages return no text (scanned images)**
 Cause: some bundled pages are scans with no text layer.
 Solution: read those pages visually and mark the values `"confidence": "medium"`.
+
+**`prior_period_mismatch` flag, no derived quarter**
+Cause: the earlier period's facts file doesn't line up with the year-to-date
+one (different ticker, year or accounting model), or the derived figures
+differ from the quarter column the filing prints, which usually means the
+earlier figures were restated.
+Solution: don't derive by hand. Report year-to-date only, mention the flag,
+and re-extract the earlier period from its latest filing if needed.
 
 **`nav_per_share` is empty**
 Cause: the REIT uses the cost model, so equity doesn't reflect appraised values.

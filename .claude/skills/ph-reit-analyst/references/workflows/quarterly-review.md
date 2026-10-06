@@ -37,6 +37,18 @@ peso total of each declaration confirms the share count. Fill
 issuances are flagged, and `reported_nav_per_share` from the KPI table as a
 cross-check.
 
+### The latest quarter alone (derived)
+
+When the earlier period's facts file of the same year exists in the same
+folder (`<YYYY>-Q1.facts.json` for a Q2 filing, `<YYYY>-H1.facts.json` for Q3),
+`compute_metrics.py` derives the latest quarter by subtracting it from the
+year-to-date flow items (net income, fair value change, straight-line rent,
+capex) and reports that quarter's coverage as `derived_quarter`. Extract
+`net_income_quarter` and `fair_value_change_quarter` from the filing's own
+quarter column (e.g. "April 1 to June 30"): the script compares them with the
+derived figures and, if they differ, raises `prior_period_mismatch` instead
+of deriving. Never derive a quarter by hand.
+
 ## 2. Extract facts
 
 Create `data/facts/<ticker>/<period_label>.facts.json` following
@@ -89,13 +101,22 @@ Read the printed checks and flags. If a check fails, re-inspect the source
 page before assuming the filing is wrong. Extraction errors are more common
 than filing errors.
 
-## 4. Report
+## 4. Chart
+
+```bash
+python <skill-dir>/scripts/bridge_chart.py outputs/<ticker>/<period_label>/metrics.json
+```
+
+Saves `bridge.png` next to `metrics.json`. Open it and check that labels
+don't overlap and the bars match the table.
+
+## 5. Report
 
 Write `outputs/<ticker>/<period_label>/report.md` following
 `references/report-template.md`. Explain each flag in one or two plain
 sentences using `references/red-flags.md`.
 
-## 5. Check the report
+## 6. Check the report
 
 ```bash
 python <skill-dir>/scripts/check_report.py outputs/<ticker>/<period_label>/report.md \

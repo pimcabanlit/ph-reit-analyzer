@@ -10,6 +10,10 @@ Checks:
   5. Every flag and every non-skipped check has its own line in the report.
   6. Every source in the earnings-to-dividend table that cites a page also
      quotes the phrase to search for in the PDF, e.g. p.7 · "NET INCOME".
+  7. The bridge chart is embedded under "From earnings to dividend" and the
+     image file exists next to the report.
+  8. If metrics.json has a derived quarter, the report shows its coverage and
+     labels it "derived".
 
 Usage:
     python <skill-dir>/scripts/check_report.py <report.md> --metrics <metrics.json> --facts <facts.json>
@@ -89,7 +93,7 @@ def section(text, heading):
     return rest[: nxt.start()] if nxt else rest
 
 
-def check(report, metrics, facts):
+def check(report, metrics, facts, report_dir=None):
     rows = []
 
     for s in REQUIRED_SECTIONS:
@@ -128,6 +132,21 @@ def check(report, metrics, facts):
     rows.append(("FAIL" if unquoted else "PASS", "sources quote a search phrase",
                  "missing for: " + "; ".join(unquoted) if unquoted else "all page citations quoted"))
 
+    image = re.search(r"!\[[^\]]*\]\(([^)\s]+\.png)\)", table)
+    if not image:
+        rows.append(("FAIL", "bridge chart embedded", "no ![...](bridge.png) under From earnings to dividend"))
+    elif report_dir is not None and not (Path(report_dir) / image.group(1)).exists():
+        rows.append(("FAIL", "bridge chart embedded", f"{image.group(1)} not found next to the report"))
+    else:
+        rows.append(("PASS", "bridge chart embedded", image.group(1)))
+
+    dq = metrics.get("metrics", {}).get("derived_quarter")
+    if dq and dq.get("affo_coverage") is not None:
+        shown = f"{dq['affo_coverage']:.2f}x" in report and re.search(r"\bderived\b", report, re.I)
+        rows.append(("PASS" if shown else "FAIL", "derived quarter shown",
+                     f"{dq['period']} {dq['affo_coverage']:.2f}x labeled derived" if shown
+                     else f"report must show {dq['period']} coverage {dq['affo_coverage']:.2f}x and call it derived"))
+
     n_checks = sum(c["status"] != "skipped" for c in metrics.get("checks", []))
     got = bullets(section(report, "## Checks"))
     ok = got >= n_checks
@@ -143,7 +162,8 @@ def main():
     parser.add_argument("--facts", type=Path, required=True)
     args = parser.parse_args()
 
-    rows = check(args.report.read_text(), json.loads(args.metrics.read_text()), json.loads(args.facts.read_text()))
+    rows = check(args.report.read_text(), json.loads(args.metrics.read_text()), json.loads(args.facts.read_text()),
+                 report_dir=args.report.parent)
     for status, name, detail in rows:
         print(f"  {status:<5} {name:<34} {detail}")
     fails = sum(r[0] == "FAIL" for r in rows)

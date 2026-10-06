@@ -53,6 +53,20 @@ Thresholds below are starting assumptions. Tune them as more REITs are tested.
   mostly to the sponsor in exchange for properties. Later dividends are shared
   across more shares, while the new properties have only just started earning."
 
+## prior_period_mismatch (needs_review)
+
+- **Detect:** when deriving the latest quarter of a year-to-date filing, the
+  earlier period's facts file differs in ticker, year, period type or
+  accounting model; a flow item is in only one file; derived capex is
+  negative; or derived net income or fair value change differs from the
+  quarter column the filing prints (`net_income_quarter`,
+  `fair_value_change_quarter`). No quarter is derived.
+- **Why it matters:** subtracting figures that were later restated produces a
+  quarter that never happened.
+- **Plain wording:** "The latest quarter on its own couldn't be worked out
+  reliably because the earlier figures don't line up with this report, so
+  this review uses the year-to-date numbers only."
+
 ## dividend_not_covered (needs_review)
 
 - **Detect:** AFFO coverage below 1.00x.

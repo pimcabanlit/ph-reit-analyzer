@@ -1,0 +1,177 @@
+{
+  "meta": {
+    "ticker": "AREIT",
+    "company": "AREIT, Inc.",
+    "form_type": "17-Q",
+    "period_end": "2026-03-31",
+    "period_type": "quarter",
+    "period_label": "2026-Q1",
+    "filing_date": "2026-05-14",
+    "source_file": "data/raw/areit/2026-Q1-17Q.pdf",
+    "accounting_model": "fair_value",
+    "accounting_model_page": 13,
+    "page_basis": "printed (matches PDF order for the 17-Q section; verify)",
+    "document_map": [
+      {
+        "document": "SEC Form 17-Q",
+        "pages": "1-31",
+        "has_text_layer": true
+      },
+      {
+        "document": "ALI reinvestment report: 12M AREIT shares (final)",
+        "pages": "32-39",
+        "has_text_layer": false
+      },
+      {
+        "document": "ALI reinvestment report: 88M AREIT shares (Q1 2026)",
+        "pages": "40-46",
+        "has_text_layer": false
+      },
+      {
+        "document": "ALI reinvestment report: 100M AREIT shares (Q1 2026)",
+        "pages": "47-54",
+        "has_text_layer": false
+      }
+    ],
+    "extracted_by": "hand-verified (gold)",
+    "notes": "FIXTURE: AREIT Q1 2026 gold facts with net income raised by P50,000,000 to simulate a restatement. Not real data."
+  },
+  "facts": {
+    "net_income": {
+      "value": 2609660288,
+      "page": 5,
+      "label": "NET INCOME"
+    },
+    "total_revenue": {
+      "value": 3544796053,
+      "page": 5,
+      "label": "REVENUE (total)"
+    },
+    "rental_income": {
+      "value": 2320321788,
+      "page": 5,
+      "label": "Rental income"
+    },
+    "finance_lease_interest_income": {
+      "value": 684228626,
+      "page": 5,
+      "label": "Interest income from finance lease receivables"
+    },
+    "fair_value_change": {
+      "value": -63724020,
+      "page": 5,
+      "label": "Net fair value change in investment properties"
+    },
+    "depreciation_amortization": {
+      "value": 107847,
+      "page": 7,
+      "label": "Depreciation and amortization",
+      "note": "Property and equipment only; investment property is at fair value."
+    },
+    "straight_line_rent_adjustment": {
+      "value": 63724020,
+      "page": 18,
+      "label": "Straight-line adjustments recorded in rental income",
+      "note": "From the distributable income computation."
+    },
+    "capex_investment_property": {
+      "value": 38958487,
+      "page": 7,
+      "label": "Payments for additions to investment properties"
+    },
+    "operating_cash_flow": {
+      "value": 3199742457,
+      "page": 7,
+      "label": "Net cash flows provided by operating activities"
+    },
+    "dividends_paid": {
+      "value": 2303768820,
+      "page": 7,
+      "label": "Payments of dividends",
+      "note": "Paid in Q1 for Q4 2025."
+    },
+    "change_due_from_related_parties": {
+      "value": -794859441,
+      "page": 7,
+      "label": "Decrease (increase) in due from related parties"
+    },
+    "total_assets": {
+      "value": 148002149767,
+      "page": 4,
+      "label": "Total assets"
+    },
+    "total_liabilities": {
+      "value": 11843458465,
+      "page": 4,
+      "label": "Total liabilities"
+    },
+    "total_equity": {
+      "value": 136158691302,
+      "page": 4,
+      "label": "Total equity"
+    },
+    "total_debt": {
+      "value": 2000000000,
+      "page": 4,
+      "label": "Short-term debt",
+      "note": "No long-term debt on the balance sheet."
+    },
+    "cash": {
+      "value": 75995567,
+      "page": 4,
+      "label": "Cash and cash equivalents"
+    },
+    "accrued_rent_receivable": {
+      "value": 763405912,
+      "page": 11,
+      "label": "Accrued receivables (March 31, 2026)"
+    },
+    "accrued_rent_receivable_prior": {
+      "value": 722276607,
+      "page": 11,
+      "label": "Accrued receivables (December 31, 2025)"
+    },
+    "finance_lease_receivable": {
+      "value": 35514323204,
+      "page": 11,
+      "label": "Finance lease receivables (March 31, 2026)"
+    },
+    "finance_lease_receivable_prior": {
+      "value": 35086452638,
+      "page": 11,
+      "label": "Finance lease receivables (December 31, 2025)"
+    },
+    "shares_outstanding": {
+      "value": 3715756162,
+      "page": 2,
+      "label": "Common shares issued and outstanding"
+    },
+    "reported_distributable_income": {
+      "value": 2559660288,
+      "page": 18,
+      "label": "Distributable income"
+    },
+    "dividend_per_share_declared": {
+      "value": 0.62,
+      "page": 21,
+      "label": "Cash dividend for Q1 2026 (declared May 13, 2026)"
+    },
+    "dividend_declared_total_reported": {
+      "value": 2303770000,
+      "page": 21,
+      "label": "P2,303.77 million",
+      "rounded": true
+    },
+    "mdna_net_income_before_fv_change": {
+      "value": 2623380000,
+      "page": 23,
+      "label": "Net income before net fair value change (P2,623.38 million)",
+      "rounded": true
+    },
+    "sponsor_ownership_pct": {
+      "value": 56.08,
+      "page": 9,
+      "label": "Collectively owned by Ayala Land, Inc. and subsidiaries"
+    }
+  }
+}

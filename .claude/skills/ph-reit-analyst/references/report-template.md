@@ -13,17 +13,25 @@ ALWAYS use this structure:
 
 **Dividend safety:** <light: green/yellow/red> — <one plain sentence>
 
+(Year-to-date periods with metrics.derived_quarter only:)
+**<Quarter> alone (derived):** <coverage>x — <one plain sentence>. Worked out
+by subtracting <earlier period> from <year-to-date period>, so treat it as a
+check on the trend, not a reported figure.
+
 ## Worth knowing
 - <one bullet per flag, plain wording from references/red-flags.md, with the number>
 (If there are no flags, write "Nothing unusual stood out in this report.")
 
 ## From earnings to dividend
+![Earnings bridge](bridge.png)
+
 | Step | ₱ millions | Source (page · search phrase · column) |
 |---|---|---|
 | Net income | | p.<n> · "<label>" · <column> |
 | ± Fair value change (paper gain/loss) | | p.<n> · "<label>" · <column> |
 | = FFO (funds from operations) | | computed |
 | − Straight-line rent (booked, not yet collected) | | p.<n> · "<label>" · <column> |
+| = Distributable income (reported) | | p.<n> · "<label>" · <column> |
 | − Capex (spending on the buildings) | | p.<n> · "<label>" · <column> |
 | = AFFO (cash earnings after upkeep) | | computed |
 | Dividend declared for the period | | p.<n> · "<label>" |
