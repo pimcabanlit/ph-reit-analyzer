@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "reit_facts.schema.json",
   "title": "PH REIT facts extracted from one filing",
-  "description": "Contract between extraction and analysis. Values are whole pesos (except per-share and percentages), signed as presented in the statements. Every fact cites the printed page it came from. Q2 and Q3 17-Q filings report cash flows year-to-date only, so they are analyzed on a year-to-date basis (period_type half or nine_months) using the year-to-date columns throughout.",
+  "description": "Contract between extraction and analysis. Values are whole pesos (except per-share and percentages), signed as presented in the statements. Every fact cites the page it came from (see meta.page_basis). Q2 and Q3 17-Q filings report cash flows year-to-date only, so they are analyzed on a year-to-date basis (period_type half or nine_months) using the year-to-date columns throughout. 17-A filings are analyzed for the full year (period_type year) using the audited current-year columns, with earlier years in history.",
   "type": "object",
   "required": ["meta", "facts"],
   "properties": {

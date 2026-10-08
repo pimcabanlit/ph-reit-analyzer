@@ -17,7 +17,7 @@ phrase compliance comments as observations, not legal conclusions.
 - **Sponsor reinvestment:** sponsors that sell REIT shares or transfer
   properties must reinvest the proceeds in the Philippines under a reinvestment
   plan and file progress reports (form REIT-2). These are often bundled with
-  the 17-Q PDF.
+  the 17-Q and 17-A PDFs.
 - **Asset composition and public float:** minimum shares of income-generating
   real estate and minimum public ownership apply. Check the current IRR before
   stating figures.

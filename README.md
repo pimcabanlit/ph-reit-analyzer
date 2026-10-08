@@ -1,26 +1,37 @@
 # PH REIT Analyst
 
-A Claude skill that reads a Philippine REIT's quarterly report and answers one
-question in plain language: **is the dividend backed by real cash, and what
-should an investor know?**
+A Claude skill that reads a Philippine REIT's quarterly report (SEC Form 17-Q)
+or annual report (SEC Form 17-A) and answers one question in plain language:
+**is the dividend backed by real cash, and what should an investor know?**
 
-Instead of digging through a 50-page SEC Form 17-Q, you get a one-page report
-that tells you whether the dividend is covered by cash earnings (green /
-yellow / red), what's unusual in the filing, and where every number came from.
+Instead of digging through a 50-page 17-Q or a 700-page 17-A, you get a
+one-page report that tells you whether the dividend is covered by cash
+earnings (green / yellow / red), what's unusual in the filing, and where every
+number came from.
 
 It extracts the key numbers with page citations, computes FFO, AFFO, dividend
 coverage and NAV per share with scripts (never mental math), runs validation
-checks, and flags issues worth a closer look. It never gives buy/sell advice.
+checks, and flags issues worth a closer look. For annual reports it also checks
+the REIT rule's 90% payout minimum and shows a three-year trend. It never gives
+buy/sell advice.
 
 ## Status
 
-Version 0.10: quarterly and annual (17-A) review workflows. Q1 filings are analyzed for the
-quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
-flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
-2026 from the Q2 17-Q, and AREIT FY2025 from the 17-A (both extracted by the
-skill, pending owner verification).
-For Q2 and Q3 filings the latest quarter alone is also derived when the
-earlier period's facts file is available, and labeled "derived".
+Version 0.10: quarterly (17-Q) and annual (17-A) review workflows.
+
+- **Quarterly:** Q1 filings are analyzed for the quarter; Q2 and Q3 filings
+  year-to-date, because the 17-Q only reports cash flows year-to-date. The
+  latest quarter alone is also derived when the earlier period's facts file is
+  available, and labeled "derived".
+- **Annual:** full-year figures from the audited statements, the four
+  quarterly dividends declared for the year, the 90% payout rule, retained
+  earnings available for dividends, fair-value-adjusted NAV, a three-year
+  trend, and checks against the quarterly reports. Large filings are indexed
+  page by page so only the relevant pages are read.
+
+Test cases: AREIT Q1 2026 (hand-verified), AREIT 1H 2026 from the Q2 17-Q, and
+AREIT FY2025 from the 699-page 17-A (both extracted by the skill, pending owner
+verification), plus three cases with deliberately broken inputs.
 
 ## Install
 
@@ -28,8 +39,10 @@ earlier period's facts file is available, and labeled "derived".
 `.claude/skills/ph-reit-analyst/` loads automatically. To use it in other
 projects, copy that folder to `~/.claude/skills/`.
 
-**Claude.ai:** zip the `.claude/skills/ph-reit-analyst/` folder and upload it
-under Settings > Capabilities > Skills. Code execution must be enabled.
+**Claude.ai:** zip the `.claude/skills/ph-reit-analyst/` folder itself (so
+`SKILL.md` sits at the top of the zip) and upload it under Settings >
+Capabilities > Skills. Code execution must be enabled. GitHub's "Download ZIP"
+gives the whole repo, which Claude.ai rejects.
 
 **Python packages** (for reading PDFs):
 
@@ -40,9 +53,12 @@ pip install -r .claude/skills/ph-reit-analyst/requirements.txt
 ## Use
 
 Put the filing in `data/raw/<ticker>/` (for example the included
-`data/raw/areit/2026-Q2-17Q.pdf`) and ask Claude:
+`data/raw/areit/2026-Q2-17Q.pdf` or `data/raw/areit/2025-FY-17A.pdf`) and ask
+Claude:
 
 - "Run a quarterly review on data/raw/areit/2026-Q2-17Q.pdf"
+- "Review AREIT's 2025 annual report: data/raw/areit/2025-FY-17A.pdf"
+- "Did AREIT pay out at least 90% of its distributable income last year?"
 - "Is AREIT's dividend safe this quarter?"
 - "Safe ba ang dividend ng AREIT ngayong quarter?"
 
@@ -84,8 +100,9 @@ python evals/run_trigger_eval.py
 
 The Q1 2026 filing PDF isn't in the repo, so only its analysis is tested.
 AREIT's FY2025 17-A (`data/raw/areit/2025-FY-17A.pdf`) tests large-filing
-intake and the annual workflow; its eval case and the remaining annual
-features are planned in [`docs/plans/annual-17a.md`](docs/plans/annual-17a.md).
+intake and the annual workflow. How annual support was planned and built, and
+the design decisions behind it, are in
+[`docs/plans/annual-17a.md`](docs/plans/annual-17a.md).
 
 ## Disclaimer
 

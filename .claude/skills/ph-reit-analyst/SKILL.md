@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pymupdf (fast page indexing) and pdfplumber (citation checks) to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.10.0
+  version: 0.10.1
 ---
 
 # PH REIT Analyst
@@ -24,8 +24,9 @@ directory.
    calculation. If a number is needed that the script doesn't produce, add it
    to the script rather than computing it in prose.
 2. **Every extracted number cites its page and quotes the filing.** Use the
-   printed page number (note the PDF page index if it differs) and an exact
-   phrase from that page that readers can search for. No citation, no entry.
+   printed page number, or the PDF page position when printed numbering
+   restarts (always for 17-As), and an exact phrase from that page that
+   readers can search for. No citation, no entry.
 3. **Flag, don't guess.** Ambiguous, missing or contradictory values get
    `"confidence": "low"` and a note, and are surfaced in the report.
 4. **No buy/sell/hold recommendations.** Describe dividend safety, valuation
@@ -48,7 +49,7 @@ more than speed, which is why extraction and calculation are separated.
 |---|---|
 | A 17-Q quarterly report, or "is the dividend safe" for a quarter | Follow `references/workflows/quarterly-review.md`. Q2 and Q3 filings are analyzed year-to-date (see "Which period to analyze" there). |
 | A 17-A annual report, or "was the dividend covered last year" | Follow `references/workflows/annual-review.md` (on top of the quarterly workflow): full-year columns, the four quarterly dividends declared for the year, audited figures first. |
-| Comparisons, total return, asset infusions | Not built yet. Say so and offer what the quarterly review can answer. |
+| Comparisons, total return, asset infusions | Not built yet. Say so and offer what the quarterly or annual review can answer. |
 | A REIT question with no filing | Ask for the filing (PSE EDGE or the REIT's investor relations page). Don't answer from memory. |
 
 If the document type is unclear, read the cover page (company, form type,
@@ -143,7 +144,7 @@ compared against the REIT rule's 90% minimum.
 **Example 4: asks for a recommendation**
 User says: "Should I buy MREIT?"
 Actions: explain that the skill doesn't give buy/sell advice, then offer a
-dividend-safety review if they share the latest 17-Q.
+dividend-safety review if they share the latest 17-Q or 17-A.
 
 ## Troubleshooting
 

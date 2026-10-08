@@ -23,16 +23,17 @@ here; change them there.
   - `scripts/compute_metrics.py`: FFO, AFFO, coverage, NAV, checks, flags
   - `scripts/bridge_chart.py`: draws the earnings bridge (bridge.png) from metrics.json
   - `scripts/check_report.py`: checks a finished report against the rules
-  - `requirements.txt`: PDF libraries
+  - `requirements.txt`: PDF and chart libraries
 - `evals/`: development tests, not part of the skill
   - `run_eval.py` + `<case>.json`: functional tests against known answers
-  - `gold/`: hand-verified facts (`<case>.facts.json`) and one folder per case
+  - `gold/`: known-correct facts (`<case>.facts.json`; Q1 2026 hand-verified,
+    1H 2026 and FY2025 pending owner verification) and one folder per case
     with the example `report.md` and its `bridge.png`
   - `fixtures/`: deliberately altered inputs for negative tests
   - `run_trigger_eval.py` + `triggers.json`: does the skill load when it should?
   - `run_intake_eval.py` + `intake.json`: does indexing find the right pages?
 - `docs/reference-bridge.png`: target design for the bridge chart
-- `docs/plans/`: plans for larger changes (e.g. `annual-17a.md`)
+- `docs/plans/`: plans for larger changes (e.g. `annual-17a.md`, done)
 - `data/raw/<ticker>/`: source PDFs, named `<YYYY>-<period>-<form>.pdf`
   (`*.index.json` next to them are generated and git-ignored)
 - `data/facts/<ticker>/`: extracted facts, named `<YYYY>-<period>.facts.json`

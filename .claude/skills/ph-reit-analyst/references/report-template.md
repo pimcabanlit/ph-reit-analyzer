@@ -1,4 +1,4 @@
-# Report template (quarterly review)
+# Report template (quarterly and annual reviews)
 
 Write for a smart reader with no finance background. Short sentences. Explain
 each technical term once, in parentheses. Use pesos in millions with one

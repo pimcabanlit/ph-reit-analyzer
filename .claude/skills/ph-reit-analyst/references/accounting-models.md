@@ -27,8 +27,9 @@ confidence to low and ask before computing.
 - Buildings are depreciated, so the Investopedia-style adjustment applies:
   `FFO = net income + real estate depreciation − gains on property sales`.
 - Only add back depreciation of real estate, not of office equipment.
-- NAV cannot be read from equity; it needs appraised values from the annual
-  report (not built yet — leave `nav_per_share` empty and say why).
+- NAV cannot be read from equity; it needs the fair value of investment
+  property disclosed in the annual report (see the adjusted NAV below). In a
+  17-Q, leave `nav_per_share` empty and say why.
 
 ## NAV is secondary, and book-based
 
@@ -38,13 +39,18 @@ confidence to low and ask before computing.
 - Fair value model: finance lease receivables are at amortized cost, not
   market value. Show their share of total assets under "Other figures" as
   context. Never estimate their market value: it needs a discount rate
-  assumption.
+  assumption. A 17-A discloses their fair value; `compute_metrics.py` then
+  adds a fair-value-adjusted NAV (book equity with the receivables at
+  disclosed fair value). AREIT FY2025: book NAV 36.57, adjusted 38.17.
 - Interim fair value changes are often just the offset of the straight-line
   adjustment, so interim book NAV mostly reflects the last year-end
   appraisal.
-- Cost model: an adjusted NAV (equity + disclosed fair value − carrying
-  amount of investment property) is planned for the 17-A workflow, using the
-  fair value disclosure PAS 40 requires. Until then, leave NAV empty.
+- Cost model: `compute_metrics.py` computes an adjusted NAV (equity +
+  disclosed fair value − carrying amount of investment property) from the
+  fair value disclosure PAS 40 requires in the 17-A
+  (`investment_property_fair_value`, `investment_property_carrying`). Without
+  that disclosure, leave NAV empty. Not yet tested on a real cost-model
+  filing.
 
 ## Gains and losses on disposal
 
