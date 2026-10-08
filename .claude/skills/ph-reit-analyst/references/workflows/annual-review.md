@@ -142,8 +142,10 @@ payout, book NAV) and checks each year's stated payout.
 Watch for:
 - **Acquisitions inside capex.** "Additions to investment properties" can
   include buying a building for cash (AREIT 2024: SEDA Lio, P1,192.00 million,
-  p.63), which makes that year's coverage look worse than the upkeep spending
-  justifies. Note it on the fact and say so next to the trend.
+  p.63). Record it as `capex_acquisitions` so AFFO excludes it. AREIT's cash
+  flow doesn't itemize it, but the note reconciles: 2024 additions of
+  29,950.3M less 28.60B of non-cash share swaps leave ~1,350.3M, matching
+  the 1,347.5M cash line; mark it medium confidence with that note.
 - **Figures that disagree between the three-year table and the audited
   note.** Put the other figure in `also_reported`; the consistency check
   reports it (AREIT 2023 distributable income: p.14 vs p.85).
@@ -181,7 +183,6 @@ Report differences from the quarterly template:
 
 ## 6. Not automated
 
-- Separating acquisitions from upkeep in capex (see 4b): flag it, don't
-  adjust it.
+- Acquisitions the filing doesn't name: don't guess them out of capex.
 
 Nothing in this section may be computed in prose:

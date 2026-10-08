@@ -58,8 +58,13 @@ signed: loss negative). AREIT FY2025 had a 6,195,989 loss on disposal.
   payments step up, creating income before cash. AFFO subtracts it. PH REITs
   often show it in their distributable income computation.
 - **Capex:** "payments for additions to investment properties" in the cash
-  flow. Filings rarely split maintenance from growth capex; subtract all of it
-  (conservative) and say so.
+  flow. Filings rarely split maintenance from growth capex; subtract it, except
+  cash purchases of whole buildings that the filing identifies
+  (`capex_acquisitions`, e.g. AREIT's SEDA Lio, P1,192.00 million in 2024):
+  buying a building isn't upkeep, and counting it would make a purchase look
+  like a dividend shortfall. Only exclude what the filing names; if the
+  amount has to be reconciled rather than read off a line, mark it medium
+  confidence and show the reconciliation in the note.
 - **Finance leases:** some REITs (AREIT) lease whole buildings to sponsor
   entities under finance leases. The building leaves investment property, a
   receivable appears, and income is booked as interest. That interest can be

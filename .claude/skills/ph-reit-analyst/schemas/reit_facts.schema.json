@@ -59,6 +59,7 @@
         "depreciation_amortization": {"$ref": "#/$defs/fact", "description": "Total D&A from the cash flow (may include non-real-estate items)."},
         "straight_line_rent_adjustment": {"$ref": "#/$defs/fact", "description": "Positive amount deducted for non-cash straight-line rent."},
         "capex_investment_property": {"$ref": "#/$defs/fact", "description": "Positive amount paid for additions to investment properties."},
+        "capex_acquisitions": {"$ref": "#/$defs/fact", "description": "Cash purchases of whole properties that the filing identifies and that are included in capex_investment_property (e.g. a building bought for cash). Excluded from AFFO's capex: buying a building isn't upkeep. Positive amount."},
         "operating_cash_flow": {"$ref": "#/$defs/fact"},
         "dividends_paid": {"$ref": "#/$defs/fact"},
         "change_due_from_related_parties": {"$ref": "#/$defs/fact", "description": "Investing cash flow line; negative = cash lent to related parties."},

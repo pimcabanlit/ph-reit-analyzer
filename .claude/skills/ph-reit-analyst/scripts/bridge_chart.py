@@ -51,6 +51,7 @@ STEP_NAMES = {
     "Less straight-line rent": ("+ Straight-line rent", "− Straight-line rent"),
     "Less capex": ("+ Capex", "− Capex"),
     "Remove gain or loss on disposal": ("+ Loss on disposal", "− Gain on disposal"),
+    "Exclude acquisitions in capex": ("+ Acquisitions (not upkeep)", "− Acquisitions"),
 }
 
 

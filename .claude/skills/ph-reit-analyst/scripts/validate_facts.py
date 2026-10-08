@@ -127,7 +127,11 @@ def validate(doc, schema=None):
             if enum and entry.get("type") not in enum:
                 errors.append(f"{label}: type {entry.get('type')!r} must be one of {enum}")
 
-    for key in ("capex_investment_property", "straight_line_rent_adjustment", "shares_outstanding"):
+    capex, acq = facts.get("capex_investment_property", {}).get("value"), facts.get("capex_acquisitions", {}).get("value")
+    if isinstance(capex, (int, float)) and isinstance(acq, (int, float)) and not 0 <= acq <= capex:
+        errors.append(f"capex_acquisitions {acq:,} must be between 0 and capex_investment_property {capex:,}")
+
+    for key in ("capex_investment_property", "straight_line_rent_adjustment", "shares_outstanding", "capex_acquisitions"):
         value = facts.get(key, {}).get("value")
         if isinstance(value, (int, float)) and value < 0:
             errors.append(f"{key}: should be a positive amount, got {value:,}")

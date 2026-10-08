@@ -42,7 +42,7 @@ PRIOR_YEAR_END = {"shares_outstanding_prior": "shares_outstanding",
                   "accrued_rent_receivable_prior": "accrued_rent_receivable"}
 # Flow items subtracted to derive a standalone quarter
 DERIVED_FLOWS = ["net_income", "fair_value_change", "real_estate_depreciation", "gain_on_property_sale",
-                 "straight_line_rent_adjustment", "capex_investment_property"]
+                 "straight_line_rent_adjustment", "capex_investment_property", "capex_acquisitions"]
 NAV_ROUNDING_TOLERANCE = 0.01
 
 
@@ -84,7 +84,9 @@ def ffo_affo(model, v):
         ffo = v["net_income"] + v["real_estate_depreciation"] - gain
     else:
         raise ValueError(f"Unknown accounting model: {model}")
-    affo = ffo - (v.get("straight_line_rent_adjustment") or 0) - v["capex_investment_property"]
+    # Upkeep capex only: cash purchases of whole buildings the filing identifies aren't spending on the buildings held
+    upkeep = v["capex_investment_property"] - (v.get("capex_acquisitions") or 0)
+    affo = ffo - (v.get("straight_line_rent_adjustment") or 0) - upkeep
     return ffo, affo
 
 
@@ -205,6 +207,10 @@ def compute(doc, prior_doc=None, annual_doc=None):
         bridge.append(row)
     bridge += [
         {"step": "Less capex", "value": -capex, **f.source("capex_investment_property")},
+    ]
+    if flows["capex_acquisitions"]:
+        bridge.append({"step": "Exclude acquisitions in capex", "value": flows["capex_acquisitions"], **f.source("capex_acquisitions")})
+    bridge += [
         {"step": "AFFO", "value": affo, "page": None, "subtotal": True},
     ]
     if len(breakdown) == 1:

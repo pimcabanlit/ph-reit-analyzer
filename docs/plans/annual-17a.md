@@ -129,16 +129,16 @@ sustainability, numbers from scanned sponsor pages.
 2. Trend: table only, no chart (decided).
 3. 2024 and 2023 columns extracted into `history` (decided).
 4. The 18.7 MB PDF stays committed (decided).
-5. Open: should AFFO exclude cash acquisitions inside "Additions to
-   investment properties"? AREIT 2024 includes SEDA Lio (1,192.00M), which
-   puts 2024 coverage at 0.87x. Currently flagged on the fact, not adjusted.
+5. AFFO excludes cash acquisitions the filing identifies inside capex
+   (`capex_acquisitions`) (decided). AREIT 2024 coverage: 0.87x with SEDA Lio
+   (1,192.00M) counted as capex, 1.06x without.
 
 Phase 3 results on AREIT FY2025 (data/facts/areit/2025-FY.facts.json, 81
 citations verified): FFO 9,436.7M (disposal loss added back), AFFO 8,955.5M,
 coverage 1.07x; payout 91.05% (matches the company; above 90%); Q4 dividend
 2,303.8M within retained earnings available 8,203.1M; interest coverage
 34.73x (matches); book NAV 36.57, fair-value-adjusted 38.17; price / NAV
-1.19x on computed book NAV; trend coverage 1.04x / 0.87x / 1.07x for
-2023–2025. Flagged automatically: the filing's 2023 distributable income
+1.19x on computed book NAV; trend coverage 1.04x / 1.06x / 1.07x for
+2023–2025 (2024 excludes the SEDA Lio purchase from capex). Flagged automatically: the filing's 2023 distributable income
 mismatch (p.14 vs p.85) and the stated 2023 payout built on it. The 1H 2026
 facts' December 2025 figures match the annual report.
