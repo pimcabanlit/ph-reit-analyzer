@@ -74,7 +74,14 @@
     "gain_on_property_sale": {"value": -6195989, "page": 58, "label": "Loss on disposal of investment properties", "column": "2025", "note": "Loss (negative). The cash flow statement adds it back."},
     "fair_value_appraisal_gain": {"value": 432829780, "page": 63, "label": "Fair value adjustment", "column": "2025"},
     "fair_value_straight_line_offset": {"value": -245890088, "page": 63, "label": "Straight-line adjustment", "column": "2025"},
-    "fair_value_lease_commissions": {"value": -78259924, "page": 63, "label": "Lease commissions", "column": "2025"}
+    "fair_value_lease_commissions": {"value": -78259924, "page": 63, "label": "Lease commissions", "column": "2025"},
+    "finance_lease_receivable_fair_value": {"value": 41001398588, "page": 85, "label": "Finance lease receivables", "column": "2025 Fair value"},
+    "interest_expense": {"value": 274359782, "page": 56, "label": "Interest expense and other charges", "column": "2025"},
+    "interest_income": {"value": 177373607, "page": 56, "label": "Interest income", "column": "2025", "note": "Interest income on cash and intercompany loans, separate from finance lease interest."},
+    "other_income": {"value": 70444, "page": 56, "label": "Other income", "column": "2025"},
+    "income_tax_expense": {"value": 1493386, "page": 56, "label": "Less: Income tax expense", "column": "2025"},
+    "depreciation_amortization": {"value": 332234, "page": 58, "label": "Depreciation", "column": "2025", "note": "Property and equipment only."},
+    "reported_interest_coverage": {"value": 34.73, "page": 110, "label": "Interest rate coverage ratio", "column": "2025"}
   },
   "dividends": [
     {

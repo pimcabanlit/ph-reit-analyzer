@@ -163,7 +163,9 @@ def compute(doc, prior_doc=None):
 
     derived, derived_checks, derived_flags = derive_quarter(f, prior_doc, flows, breakdown)
     metrics["derived_quarter"] = derived
-    metrics["valuation"] = valuation(f, breakdown)
+    metrics["nav_fair_value_adjusted"] = fair_value_adjusted_nav(f, model, equity, shares)
+    metrics["interest_coverage"] = interest_coverage(f)
+    metrics["valuation"] = valuation(f, breakdown, nav_per_share)
     fl_receivable = f.get("finance_lease_receivable", required=False)
     metrics["assets_not_at_fair_value_share"] = (
         {"value": fl_receivable / assets, "basis": "finance lease receivables / total assets",
@@ -225,19 +227,56 @@ def quarter_index(label):
     return int(year) * 4 + int(q) - 1
 
 
-def valuation(f, breakdown):
+def fair_value_adjusted_nav(f, model, equity, shares):
+    """Book NAV with assets not carried at fair value moved to their disclosed fair value.
+
+    Fair value model: finance lease receivables (at amortized cost in the books).
+    Cost model: investment property. Uses disclosed figures only, never estimates.
+    """
+    if model == "fair_value":
+        fair, carrying = f.get("finance_lease_receivable_fair_value", required=False), f.get("finance_lease_receivable", required=False)
+        what = "finance lease receivables"
+    else:
+        fair, carrying = f.get("investment_property_fair_value", required=False), f.get("investment_property_carrying", required=False)
+        what = "investment property"
+    if fair is None or carrying is None:
+        return None
+    return {"value": (equity + fair - carrying) / shares,
+            "basis": f"book equity with {what} at disclosed fair value instead of carrying amount, per share",
+            "adjustment": fair - carrying, "fair_value": fair, "carrying": carrying,
+            "fair_value_source": cite(f.items.get("finance_lease_receivable_fair_value" if model == "fair_value" else "investment_property_fair_value"))}
+
+
+def interest_coverage(f):
+    """EBITDA / interest expense, EBITDA as PH REITs define it in their financial soundness indicators:
+    before interest expense, tax and depreciation, excluding the fair value change, interest income and other income.
+    Follows the company's definition exactly (no disposal adjustment) so it can be checked against the reported ratio."""
+    keys = ("interest_expense", "interest_income")
+    if any(f.get(k, required=False) is None for k in keys):
+        return None
+    get = lambda k: f.get(k, required=False) or 0  # noqa: E731
+    ebitda = (f.get("net_income") + get("income_tax_expense") + get("interest_expense") + get("depreciation_amortization")
+              - get("fair_value_change") - get("interest_income") - get("other_income"))
+    return {"value": ebitda / f.get("interest_expense"), "ebitda": ebitda, "interest_expense": f.get("interest_expense")}
+
+
+def valuation(f, breakdown, book_nav=None):
     """Price / NAV and dividend yield on two labeled bases, from the filing's own price."""
     price = f.get("market_price_close", required=False)
     if price is None:
         return None
     nav = f.get("reported_nav_per_share", required=False)
+    nav_basis = "reported"
+    if nav is None and book_nav is not None:
+        nav, nav_basis = book_nav, "computed: total equity / shares outstanding (the filing reports no NAV per share)"
     latest = max(breakdown, key=lambda b: quarter_index(b["for_period"]))
     run_rate = latest["dividend_per_share"] * 4
     result = {
         "price": price,
         "price_source": f.source("market_price_close"),
         "nav_per_share_reported": nav,
-        "nav_source": f.source("reported_nav_per_share"),
+        "nav_basis": nav_basis,
+        "nav_source": f.source("reported_nav_per_share") if nav_basis == "reported" else None,
         "price_to_nav": price / nav if nav else None,
         "yield_latest_quarter_x4": {"basis": f"latest quarter ({latest['for_period']}) x 4",
                                     "dividend_per_share": latest["dividend_per_share"],
@@ -470,6 +509,15 @@ def run_checks(f, ffo, nav_per_share):
     else:
         checks.append({"id": "fair_value_breakdown_adds_up", "status": "skipped", "detail": "No fair value breakdown (annual reports only)"})
 
+    reported_ic = f.get("reported_interest_coverage", required=False)
+    ic = interest_coverage(f)
+    if reported_ic is not None and ic is not None:
+        checks.append(_check("interest_coverage_matches_reported", abs(ic["value"] - reported_ic) <= 0.005,
+                             f"EBITDA {ic['ebitda']:,} / interest {ic['interest_expense']:,} = {ic['value']:.2f}x vs reported {reported_ic:.2f}x",
+                             review=True))
+    else:
+        checks.append({"id": "interest_coverage_matches_reported", "status": "skipped", "detail": "No reported interest coverage"})
+
     reported_nav = f.get("reported_nav_per_share", required=False)
     if reported_nav is not None and nav_per_share is not None:
         diff = nav_per_share - reported_nav
@@ -560,10 +608,15 @@ def print_summary(result):
     v = m.get("valuation")
     if v:
         trailing = v["yield_trailing_four_quarters"]
-        to_nav = (f"Price {v['price']:.2f} / NAV {v['nav_per_share_reported']:.2f} = {v['price_to_nav']:.2f}x; "
+        to_nav = (f"Price {v['price']:.2f} / NAV {v['nav_per_share_reported']:.2f} ({v['nav_basis'].split(':')[0]}) = {v['price_to_nav']:.2f}x; "
                   if v["price_to_nav"] is not None else f"Price {v['price']:.2f} (no reported NAV per share); ")
         print(to_nav + f"yield {v['yield_latest_quarter_x4']['yield']:.2%} ({v['yield_latest_quarter_x4']['basis']})"
               + (f", {trailing['yield']:.2%} (trailing four quarters)" if trailing else ""))
+    if m.get("nav_fair_value_adjusted"):
+        print(f"NAV per share, fair-value-adjusted: {m['nav_fair_value_adjusted']['value']:.2f} "
+              f"(adjustment {m['nav_fair_value_adjusted']['adjustment']:,})")
+    if m.get("interest_coverage"):
+        print(f"Interest coverage: {m['interest_coverage']['value']:.2f}x")
     if m.get("assets_not_at_fair_value_share"):
         print(f"Assets not at fair value: {m['assets_not_at_fair_value_share']['value']:.1%} "
               f"({m['assets_not_at_fair_value_share']['basis']})")
