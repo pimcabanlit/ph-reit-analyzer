@@ -35,7 +35,11 @@ RELATED_PARTY_LENDING_FLAG = 0.10
 STRAIGHT_LINE_MISMATCH = 0.10
 SHARES_ISSUED_FLAG = 0.05
 # Year-to-date period -> (period type of the earlier file, its label suffix)
-PRIOR_PERIOD = {"half": ("quarter", "Q1"), "nine_months": ("half", "H1")}
+PRIOR_PERIOD = {"half": ("quarter", "Q1"), "nine_months": ("half", "H1"), "year": ("nine_months", "9M")}
+# Prior year-end figures in a quarterly filing -> the same figure in last year's annual report
+PRIOR_YEAR_END = {"shares_outstanding_prior": "shares_outstanding",
+                  "finance_lease_receivable_prior": "finance_lease_receivable",
+                  "accrued_rent_receivable_prior": "accrued_rent_receivable"}
 # Flow items subtracted to derive a standalone quarter
 DERIVED_FLOWS = ["net_income", "fair_value_change", "real_estate_depreciation", "gain_on_property_sale",
                  "straight_line_rent_adjustment", "capex_investment_property"]
@@ -94,7 +98,7 @@ def safety_light(coverage):
     return "red"
 
 
-def compute(doc, prior_doc=None):
+def compute(doc, prior_doc=None, annual_doc=None):
     f = Facts(doc)
     model = f.meta["accounting_model"]
     period_type = f.meta.get("period_type", "quarter")
@@ -219,7 +223,8 @@ def compute(doc, prior_doc=None):
         "metrics": metrics,
         "bridge": bridge,
         "checks": run_checks(f, ffo, nav_per_share) + annual_checks(f, breakdown, dividend_total, payout_di)
-                  + [consistency_check(doc)] + derived_checks + issuance_checks + trend_checks,
+                  + [consistency_check(doc)] + derived_checks + issuance_checks + trend_checks
+                  + [prior_annual_check(f, annual_doc)],
         "flags": detect_flags(f, coverage, fl_share, metrics["share_issuances"]) + derived_flags + event_flags,
     }
 
@@ -429,6 +434,34 @@ def annual_checks(f, breakdown, dividend_total, payout):
     return checks
 
 
+def prior_annual_check(f, annual_doc):
+    """A quarterly filing's prior year-end column must match last year's annual report."""
+    check_id = "matches_prior_annual_report"
+    if f.meta.get("period_type") == "year":
+        return {"id": check_id, "status": "skipped", "detail": "Annual report"}
+    if annual_doc is None:
+        return {"id": check_id, "status": "skipped", "detail": "No facts file for last year's annual report"}
+    a = Facts(annual_doc)
+    pairs = [(mine, f.get(mine, required=False), theirs, a.get(theirs, required=False)) for mine, theirs in PRIOR_YEAR_END.items()]
+    nav_prior = f.get("reported_nav_per_share_prior", required=False)
+    annual_nav = a.get("reported_nav_per_share", required=False)
+    if annual_nav is None and a.get("total_equity", required=False) and a.get("shares_outstanding", required=False):
+        annual_nav = a.get("total_equity") / a.get("shares_outstanding")
+    pairs.append(("reported_nav_per_share_prior", nav_prior, "NAV per share", annual_nav))
+    compared, mismatches = [], []
+    for mine, x, theirs, y in pairs:
+        if x is None or y is None:
+            continue
+        tolerance = 0.01 if abs(y) < 1000 else 1
+        show = (lambda v: f"{v:,.2f}") if abs(y) < 1000 else (lambda v: f"{v:,}")
+        (mismatches if abs(x - y) > tolerance else compared).append(f"{mine} {show(x)} vs annual {theirs} {show(y)}")
+    if not compared and not mismatches:
+        return {"id": check_id, "status": "skipped", "detail": "No prior year-end figures to compare"}
+    if mismatches:
+        return _check(check_id, False, "differs from last year's annual report (restated or misread?): " + "; ".join(mismatches), review=True)
+    return _check(check_id, True, f"{len(compared)} prior year-end figures match {a.meta.get('period_label')}: " + "; ".join(compared))
+
+
 def consistency_check(doc):
     """Figures the filing prints in more than one place must agree; a mismatch is likely the filing's, not ours."""
     mismatches, compared = [], 0
@@ -512,6 +545,7 @@ def derive_quarter(f, prior_doc, flows, breakdown):
 
     ffo, affo = ffo_affo(f.meta["accounting_model"], values)
     dividend = next((b for b in breakdown if b["for_period"] == quarter), None)
+    # Annual reports print no Q4 column, so nothing in the filing can confirm a derived Q4
     coverage = affo / dividend["total"] if dividend and dividend["total"] else None
     derived = {
         "period": quarter,
@@ -525,13 +559,14 @@ def derive_quarter(f, prior_doc, flows, breakdown):
         "affo_coverage": coverage,
         "safety_light": safety_light(coverage),
         "verified_against_filing": verified,
+        "unverified": not verified,
     }
     if verified:
         check = {"id": "derived_quarter_matches_filing", "status": "pass",
                  "detail": f"Derived {quarter} " + ", ".join(f"{k} {values[k]:,}" for k in verified)
                            + " match the filing's quarter column"}
     else:
-        check = skipped("No quarter column in the facts file to compare against")[0]
+        check = skipped("No quarter column to compare against (annual reports print none), so the derived quarter is unverified")[0]
     return derived, [check], []
 
 
@@ -714,7 +749,8 @@ def print_summary(result):
             print(f"         {row['year']}   {fmt(row['coverage'], '.2f'):>7}x  {fmt(row['payout'], '.1%'):>7}   {fmt(row['nav_book'], '.2f'):>7}")
     dq = m.get("derived_quarter")
     if dq and dq["affo_coverage"] is not None:
-        print(f"Standalone {dq['period']} (derived): AFFO {dq['affo'] / 1e6:,.1f}M, "
+        label = "derived, unverified" if dq.get("unverified") else "derived"
+        print(f"Standalone {dq['period']} ({label}): AFFO {dq['affo'] / 1e6:,.1f}M, "
               f"coverage {dq['affo_coverage']:.2f}x -> {dq['safety_light']}")
     print("\nChecks:")
     for c in result["checks"]:
@@ -732,11 +768,20 @@ def find_prior(facts_path, meta):
     return candidate if candidate.exists() else None
 
 
+def find_prior_annual(facts_path, meta):
+    """Last year's annual facts file, if it sits next to this one."""
+    if meta.get("period_type") == "year":
+        return None
+    candidate = facts_path.parent / f"{int(meta['period_end'][:4]) - 1}-FY.facts.json"
+    return candidate if candidate.exists() else None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("facts", type=Path)
     parser.add_argument("-o", "--output", type=Path, help="Where to write metrics.json")
     parser.add_argument("--prior", type=Path, help="Facts file for the earlier period of the same year")
+    parser.add_argument("--annual", type=Path, help="Facts file for last year's annual report (17-A)")
     args = parser.parse_args()
 
     doc = json.loads(args.facts.read_text())
@@ -760,7 +805,12 @@ def main():
         else:
             print(f"  Deriving the standalone quarter with {prior_path}")
 
-    result = compute(doc, prior_doc)
+    annual_path = args.annual or find_prior_annual(args.facts, doc["meta"])
+    annual_doc = json.loads(annual_path.read_text()) if annual_path else None
+    if annual_doc:
+        print(f"  Comparing prior year-end figures with {annual_path}")
+
+    result = compute(doc, prior_doc, annual_doc)
     result["validation_warnings"] = warnings
     print_summary(result)
     if args.output:

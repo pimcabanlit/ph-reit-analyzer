@@ -41,6 +41,7 @@ Each dividend uses the share count on its own record date: Q1's (May 28) was bef
 - Distributable income (the amount REIT rules use for payouts) reconciles: passed
 - Each dividend's per-share amount × shares matches its reported total: passed
 - NAV per share matches the company's own figure: passed
+- December 31, 2025 figures (shares, finance lease receivables, NAV per share) match AREIT's 2025 annual report: passed
 - Derived Q2 net income and fair value change match the filing's April-to-June column: passed
 - Share issuance table (paid-up capital + APIC = transaction value, p.18): needs review. The Ayala Malls Feliz row shows APIC of 4,162,137,233, the same as its transaction value, so paid-up capital + APIC comes to 5,104,863,673. The transaction value minus paid-up capital (942,726,440) is 3,219,410,793, and the printed APIC total of 15,064,646,052 matches the rows when that figure is used. This is likely a typo in the filing, not in our numbers.
 

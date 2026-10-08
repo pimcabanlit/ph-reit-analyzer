@@ -1,6 +1,6 @@
 # Plan: annual reports (SEC Form 17-A)
 
-Status: Phases 1 and 2 done; Phase 3 next (needs the open decisions in section 4). Based on AREIT's 17-A for FY2025 (filed April 14,
+Status: Phases 1–3 done; Phase 4 (report and chart) next. Based on AREIT's 17-A for FY2025 (filed April 14,
 2026), `data/raw/areit/2025-FY-17A.pdf`. Page numbers below are PDF page
 positions.
 
@@ -96,18 +96,18 @@ reports):
   quarters.
 
 ### Phase 3: schema and metrics
-- [ ] Fair value change breakdown facts and a check that the parts add up;
+- [x] Fair value change breakdown facts and a check that the parts add up;
       reword the straight-line flag as context
-- [ ] Remove gains / losses on disposal in FFO under both models
-- [ ] Fair-value-adjusted NAV from disclosed fair values (cost model: the
+- [x] Remove gains / losses on disposal in FFO under both models
+- [x] Fair-value-adjusted NAV from disclosed fair values (cost model: the
       investment property fair value disclosure)
-- [ ] Checks: annual payout ≥ 90% and equal to the company's stated figure;
+- [x] Checks: annual payout ≥ 90% and equal to the company's stated figure;
       dividends declared after year-end ≤ retained earnings available;
       interest coverage vs the company's figure
-- [ ] Consistency check for figures reported in several places
+- [x] Consistency check for figures reported in several places
       (`also_reported`), reported as a likely filing inconsistency
-- [ ] `history` list for a 3-year trend from one filing
-- [ ] Cross-filing checks (17-Q prior-year-end columns vs 17-A); derived Q4 =
+- [x] `history` list for a 3-year trend from one filing
+- [x] Cross-filing checks (17-Q prior-year-end columns vs 17-A); derived Q4 =
       FY − 9M when a 9M facts file exists, labeled unverified
 
 ### Phase 4: report and chart
@@ -124,9 +124,21 @@ reports):
 Out of scope: scraping all appraisal reports, governance and compensation,
 sustainability, numbers from scanned sponsor pages.
 
-## 4. Open decisions
-1. Fair-value-adjusted NAV: finance lease receivables only (about 38.17), or
-   all three disclosed items (about 38.20)?
-2. Add a small 3-year trend chart, or a table only?
-3. Extract the 2024 and 2023 columns into `history`?
-4. Keep the 18.7 MB PDF committed?
+## 4. Decisions
+1. Fair-value-adjusted NAV: finance lease receivables only (decided).
+2. Trend: table only, no chart (decided).
+3. 2024 and 2023 columns extracted into `history` (decided).
+4. The 18.7 MB PDF stays committed (decided).
+5. Open: should AFFO exclude cash acquisitions inside "Additions to
+   investment properties"? AREIT 2024 includes SEDA Lio (1,192.00M), which
+   puts 2024 coverage at 0.87x. Currently flagged on the fact, not adjusted.
+
+Phase 3 results on AREIT FY2025 (data/facts/areit/2025-FY.facts.json, 81
+citations verified): FFO 9,436.7M (disposal loss added back), AFFO 8,955.5M,
+coverage 1.07x; payout 91.05% (matches the company; above 90%); Q4 dividend
+2,303.8M within retained earnings available 8,203.1M; interest coverage
+34.73x (matches); book NAV 36.57, fair-value-adjusted 38.17; price / NAV
+1.19x on computed book NAV; trend coverage 1.04x / 0.87x / 1.07x for
+2023–2025. Flagged automatically: the filing's 2023 distributable income
+mismatch (p.14 vs p.85) and the stated 2023 payout built on it. The 1H 2026
+facts' December 2025 figures match the annual report.

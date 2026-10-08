@@ -154,7 +154,8 @@ def draw(result, out_path):
     dq = m.get("derived_quarter")
     if dq and dq.get("affo_coverage") is not None:
         dl = STATUS.get(dq.get("safety_light"))
-        tiles.append((f"{quarter_name(dq['period'])} alone (derived)", f"{dq['affo_coverage']:.2f}x",
+        tiles.append((f"{quarter_name(dq['period'])} alone ({'derived, unverified' if dq.get('unverified') else 'derived'})",
+                      f"{dq['affo_coverage']:.2f}x",
                       (f"{dl[1]} {dl[2]}", dl[0]) if dl else ("", TEXT_2)))
     width = 0.88 / len(tiles)
     for i, (title, value, (sub, sub_color)) in enumerate(tiles):

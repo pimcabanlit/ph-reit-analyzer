@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pymupdf (fast page indexing) and pdfplumber (citation checks) to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.8.0
+  version: 0.9.0
 ---
 
 # PH REIT Analyst
@@ -185,6 +185,18 @@ If the detail says the printed column total matches the other rows, the
 row is likely a typo in the filing.
 Solution: re-read the row once. If it's as printed, report it as a likely
 filing typo with the corrected figure, not as an extraction error.
+
+**`matches_prior_annual_report` needs review**
+Cause: a quarterly report's prior year-end figure differs from last year's
+annual report: a restatement, or one of the two was misread.
+Solution: re-read both cited pages. If both are as printed, report it as a
+possible restatement; don't pick one silently.
+
+**`figures_consistent_within_filing` needs review**
+Cause: the filing prints the same figure differently in two places (AREIT's
+2023 distributable income: p.14 vs p.85).
+Solution: use the audited figure, report the other as a likely inconsistency
+in the filing, citing both pages.
 
 **`nav_per_share` is empty**
 Cause: the REIT uses the cost model, so equity doesn't reflect appraised values.

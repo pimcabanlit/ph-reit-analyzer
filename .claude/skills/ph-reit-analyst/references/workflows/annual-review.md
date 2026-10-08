@@ -167,8 +167,21 @@ Report differences from the quarterly template:
   company's own payout figure.
 - Say the figures are audited.
 
-## 6. Not automated yet
+## 5b. Links to the quarterly reports
 
-These are planned (see the repo's plan) and must not be computed in prose
-meanwhile:
-- Q4 derived as full year minus nine months.
+- **Derived Q4.** If the same year's nine-month facts file
+  (`<YYYY>-9M.facts.json`) sits next to the annual one, `compute_metrics.py`
+  derives Q4 as full year minus nine months. A 17-A prints no Q4 column, so
+  the result is labeled "derived, unverified"; say so in the report.
+- **Next year's quarterlies.** When a 17-Q facts file is computed and last
+  year's `<YYYY>-FY.facts.json` sits next to it, its prior year-end figures
+  (shares, finance lease receivables, accrued rent, NAV per share) are checked
+  against the annual report (`matches_prior_annual_report`). A mismatch means
+  a restatement or a misread; re-read both pages before reporting it.
+
+## 6. Not automated
+
+- Separating acquisitions from upkeep in capex (see 4b): flag it, don't
+  adjust it.
+
+Nothing in this section may be computed in prose:
