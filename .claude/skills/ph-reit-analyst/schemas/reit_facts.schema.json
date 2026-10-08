@@ -83,7 +83,9 @@
         "shares_outstanding_prior": {"$ref": "#/$defs/fact", "description": "Shares outstanding at the start of the period (prior year-end column). Used to flag shares issued during the period."},
         "reported_distributable_income": {"$ref": "#/$defs/fact"},
         "dividend_per_share_declared": {"$ref": "#/$defs/fact", "description": "Dividend declared FOR this period (may be declared after period end). Use the dividends list instead when the period has more than one declaration."},
-        "dividend_declared_total_reported": {"$ref": "#/$defs/fact"},
+        "dividend_declared_total_reported": {"$ref": "#/$defs/fact", "description": "Reported peso total of the dividends declared for the period (one declaration, or the period's total when there is a dividends list)."},
+        "reported_payout_pct": {"$ref": "#/$defs/fact", "description": "The company's own payout of distributable income, in percent (annual reports). Cross-check."},
+        "retained_earnings_available_for_dividends": {"$ref": "#/$defs/fact", "description": "Annual reports: total retained earnings available for dividend declaration at year-end (supplementary schedule)."},
         "net_income_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: net income for the latest quarter as printed in the filing's quarter column. Cross-checks the derived quarter."},
         "fair_value_change_quarter": {"$ref": "#/$defs/fact", "description": "Year-to-date filings only: fair value change for the latest quarter as printed. Cross-checks the derived quarter."},
         "mdna_net_income_before_fv_change": {"$ref": "#/$defs/fact", "description": "Cross-check only."},
@@ -185,7 +187,23 @@
         "citation": {"type": "string", "enum": ["text", "visual"], "default": "text", "description": "'visual' when the page has no text layer and the value was read from the page image. check_citations.py can't verify it, so confidence must be medium or low."},
         "rounded": {"type": "boolean", "description": "True if the filing reported this rounded (in millions unless unit says otherwise) and it was converted to pesos."},
         "unit": {"type": "string", "enum": ["million", "billion"], "default": "million", "description": "Unit the rounded figure was printed in."},
-        "note": {"type": "string"}
+        "note": {"type": "string"},
+        "also_reported": {
+          "type": "array",
+          "description": "Other places the filing prints the same figure. Each is citation-checked, and compute_metrics.py reports any that disagree as a likely inconsistency in the filing.",
+          "items": {
+            "type": "object",
+            "required": ["value", "page", "label"],
+            "properties": {
+              "value": {"type": "number"},
+              "page": {"type": "integer"},
+              "label": {"type": "string"},
+              "column": {"type": "string"},
+              "rounded": {"type": "boolean"},
+              "unit": {"type": "string", "enum": ["million", "billion"]}
+            }
+          }
+        }
       }
     }
   }

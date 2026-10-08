@@ -80,6 +80,9 @@ def validate(doc, schema=None):
             warnings.append(f"{key}: low confidence — mention in the report ({item.get('note', 'no note given')})")
         elif conf == "medium":
             warnings.append(f"{key}: medium confidence ({item.get('note', 'no note given')})")
+        for other in item.get("also_reported", []):
+            if not isinstance(other.get("page"), int) or not other.get("label") or not isinstance(other.get("value"), (int, float)):
+                errors.append(f"{key}: each also_reported entry needs value, page and label")
 
     for key, item in facts.items():
         check_fact(key, item)

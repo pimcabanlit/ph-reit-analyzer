@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_citations import iter_facts  # noqa: E402
 from validate_facts import validate  # noqa: E402
 
 PERIODS_PER_YEAR = {"quarter": 4, "half": 2, "nine_months": 4 / 3, "year": 1}
@@ -216,7 +217,8 @@ def compute(doc, prior_doc=None):
         "meta": {k: f.meta.get(k) for k in ("ticker", "form_type", "period_label", "period_type", "period_end", "filing_date", "accounting_model", "source_file")},
         "metrics": metrics,
         "bridge": bridge,
-        "checks": run_checks(f, ffo, nav_per_share) + derived_checks + issuance_checks,
+        "checks": run_checks(f, ffo, nav_per_share) + annual_checks(f, breakdown, dividend_total, payout_di)
+                  + [consistency_check(doc)] + derived_checks + issuance_checks,
         "flags": detect_flags(f, coverage, fl_share, metrics["share_issuances"]) + derived_flags + event_flags,
     }
 
@@ -367,6 +369,50 @@ def subsequent_events(f, issuances):
     return events, flags
 
 
+def annual_checks(f, breakdown, dividend_total, payout):
+    """Checks that only make sense for a full year: the REIT rule's 90% payout and dividend capacity."""
+    if f.meta.get("period_type") != "year":
+        return []
+    checks = []
+    if payout is not None:
+        checks.append(_check("annual_distribution_rule", payout >= 0.90,
+                             f"dividends declared for the year are {payout:.2%} of distributable income (REIT rules: at least 90%)",
+                             review=True))
+    reported = f.get("reported_payout_pct", required=False)
+    if reported is not None and payout is not None:
+        checks.append(_check("payout_matches_reported", abs(payout * 100 - reported) <= 0.005,
+                             f"computed {payout:.2%} vs company's {reported:.2f}%", review=True))
+    available = f.get("retained_earnings_available_for_dividends", required=False)
+    last_quarter = f"{f.meta['period_end'][:4]}-Q4"
+    after_year_end = sum(b["total"] for b in breakdown if b["for_period"] == last_quarter)
+    if available is not None and after_year_end:
+        checks.append(_check("dividends_within_retained_earnings", after_year_end <= available,
+                             f"{last_quarter} dividend declared after year-end {after_year_end:,} vs retained earnings "
+                             f"available for dividends {available:,}", review=True))
+    return checks
+
+
+def consistency_check(doc):
+    """Figures the filing prints in more than one place must agree; a mismatch is likely the filing's, not ours."""
+    mismatches, compared = [], 0
+    for name, item in iter_facts(doc):
+        for other in item.get("also_reported", []):
+            compared += 1
+            if other.get("rounded"):
+                tolerance = 0.005 * (1e9 if other.get("unit") == "billion" else 1e6)
+            else:
+                tolerance = 1 if abs(item["value"]) >= 1000 else 0.005
+            if abs(other["value"] - item["value"]) > tolerance:
+                mismatches.append(f"{name}: {item['value']:,} on p.{item['page']} vs {other['value']:,} on p.{other['page']} "
+                                  f"(difference {other['value'] - item['value']:,})")
+    if not compared:
+        return {"id": "figures_consistent_within_filing", "status": "skipped", "detail": "No figures reported in more than one place"}
+    if mismatches:
+        return _check("figures_consistent_within_filing", False,
+                      "likely inconsistency in the filing: " + "; ".join(mismatches), review=True)
+    return _check("figures_consistent_within_filing", True, f"{compared} figures printed in more than one place agree")
+
+
 def derive_quarter(f, prior_doc, flows, breakdown):
     """Standalone latest quarter = year-to-date minus the earlier period, for flow items only.
 
@@ -488,6 +534,10 @@ def run_checks(f, ffo, nav_per_share):
     if f.dividends:
         pairs = [(d["for_period"], round(d["dividend_per_share"]["value"] * d["shares"]["value"]), d["reported_total"]["value"])
                  for d in f.dividends if d.get("reported_total")]
+        period_total = f.get("dividend_declared_total_reported", required=False)
+        if period_total is not None:
+            pairs.append((f"{f.meta.get('period_label')} total",
+                          sum(round(d["dividend_per_share"]["value"] * d["shares"]["value"]) for d in f.dividends), period_total))
     else:
         reported = f.get("dividend_declared_total_reported", required=False)
         pairs = [(f.meta.get("period_label"), round(f.get("dividend_per_share_declared") * f.get("shares_outstanding")), reported)] \

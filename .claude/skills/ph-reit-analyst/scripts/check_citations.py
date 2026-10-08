@@ -41,7 +41,15 @@ def printed_forms(value, rounded, unit="million"):
     return forms
 
 
-def iter_facts(doc):
+def iter_facts(doc, with_also_reported=False):
+    for key, item in _iter_main(doc):
+        yield key, item
+        if with_also_reported:
+            for other in item.get("also_reported", []):
+                yield f"{key} (also p.{other.get('page')})", other
+
+
+def _iter_main(doc):
     for key, item in doc.get("facts", {}).items():
         yield key, item
     for section, name_key in (("dividends", "for_period"), ("trailing_dividends", "for_period"),
@@ -56,7 +64,7 @@ def iter_facts(doc):
 def check(doc, page_text):
     """page_text: function taking a 1-based PDF page index, returning its text."""
     rows = []
-    for key, item in iter_facts(doc):
+    for key, item in iter_facts(doc, with_also_reported=True):
         index = item.get("pdf_page") or item.get("page")
         try:
             text = normalize(page_text(index))

@@ -47,7 +47,7 @@
     "notes": "Full year 2025. Pages are PDF positions (printed numbering restarts in each part). Accrued receivables are not split out of trade receivables in the 17-A, so accrued_rent_receivable is omitted."
   },
   "facts": {
-    "net_income": {"value": 9539219827, "page": 56, "label": "Net income for the year", "column": "2025"},
+    "net_income": {"value": 9539219827, "page": 56, "label": "Net income for the year", "column": "2025", "also_reported": [{"value": 9539219827, "page": 13, "label": "Net income"}, {"value": 9539219828, "page": 107, "label": "Net income (loss) for the current year"}]},
     "total_revenue": {"value": 12959780593, "page": 56, "label": "Revenue", "column": "2025"},
     "rental_income": {"value": 8826839176, "page": 56, "label": "Rental income", "column": "2025"},
     "finance_lease_interest_income": {"value": 2138795147, "page": 56, "label": "Interest income from finance lease", "column": "2025"},
@@ -64,9 +64,9 @@
     "finance_lease_receivable": {"value": 35086452638, "page": 60, "label": "Finance lease receivables", "column": "2025"},
     "finance_lease_receivable_prior": {"value": 19673140935, "page": 60, "label": "Finance lease receivables", "column": "2024"},
     "straight_line_rent_adjustment": {"value": 245890088, "page": 85, "label": "Straight-lining adjustments recorded in rental", "column": "2025"},
-    "reported_distributable_income": {"value": 9184649971, "page": 85, "label": "Distributable income", "column": "2025"},
+    "reported_distributable_income": {"value": 9184649971, "page": 85, "label": "Distributable income", "column": "2025", "also_reported": [{"value": 9184649971, "page": 13, "label": "Distributable Income"}, {"value": 9184649971, "page": 14, "label": "9,184,649,971"}]},
     "mdna_net_income_before_fv_change": {"value": 9430540000, "page": 15, "label": "9,430.54 million", "rounded": true},
-    "shares_outstanding": {"value": 3715756162, "page": 67, "label": "Outstanding shares at December 31", "column": "2025"},
+    "shares_outstanding": {"value": 3715756162, "page": 67, "label": "Outstanding shares at December 31", "column": "2025", "also_reported": [{"value": 3715756162, "page": 5, "label": "outstanding common shares"}]},
     "shares_outstanding_prior": {"value": 3209865985, "page": 67, "label": "Outstanding shares at December 31", "column": "2024"},
     "sponsor_ownership_pct": {"value": 58.45, "page": 59, "label": "58.45% collectively owned"},
     "market_price_close": {"value": 43.5, "page": 12, "label": "Fourth Quarter", "column": "Close"},
@@ -81,7 +81,10 @@
     "other_income": {"value": 70444, "page": 56, "label": "Other income", "column": "2025"},
     "income_tax_expense": {"value": 1493386, "page": 56, "label": "Less: Income tax expense", "column": "2025"},
     "depreciation_amortization": {"value": 332234, "page": 58, "label": "Depreciation", "column": "2025", "note": "Property and equipment only."},
-    "reported_interest_coverage": {"value": 34.73, "page": 110, "label": "Interest rate coverage ratio", "column": "2025"}
+    "reported_interest_coverage": {"value": 34.73, "page": 110, "label": "Interest rate coverage ratio", "column": "2025"},
+    "reported_payout_pct": {"value": 91.05, "page": 13, "label": "% of Dividends to Distributable Income", "note": "Also 91.05% on p.14."},
+    "retained_earnings_available_for_dividends": {"value": 8203113397, "page": 109, "label": "available for dividend", "column": "end of the year"},
+    "dividend_declared_total_reported": {"value": 8363080842, "page": 13, "label": "Total Amount of Dividends Paid", "note": "Dividends for 2025 (Q1 to Q4, Q4 paid March 20, 2026); treated as paid within the year under RR 13-2011."}
   },
   "dividends": [
     {
