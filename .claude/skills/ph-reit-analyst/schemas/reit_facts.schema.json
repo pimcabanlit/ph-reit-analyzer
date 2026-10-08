@@ -75,6 +75,8 @@
         "finance_lease_receivable_fair_value": {"$ref": "#/$defs/fact", "description": "Disclosed fair value of finance lease receivables (fair value measurement note, annual reports). Used for the fair-value-adjusted NAV; never estimate it."},
         "investment_property_carrying": {"$ref": "#/$defs/fact", "description": "Cost model: carrying amount of investment property."},
         "investment_property_fair_value": {"$ref": "#/$defs/fact", "description": "Cost model: disclosed fair value of investment property (PAS 40 disclosure)."},
+        "appraisal_discount_rate_min": {"$ref": "#/$defs/fact", "description": "Annual reports: lowest discount rate the appraiser used, in percent (fair value note). Context only."},
+        "appraisal_discount_rate_max": {"$ref": "#/$defs/fact", "description": "Annual reports: highest discount rate the appraiser used, in percent. Context only."},
         "interest_expense": {"$ref": "#/$defs/fact", "description": "Interest expense and other charges (income statement)."},
         "interest_income": {"$ref": "#/$defs/fact", "description": "Interest income other than finance lease interest (income statement)."},
         "other_income": {"$ref": "#/$defs/fact", "description": "Other income (income statement)."},
@@ -160,7 +162,7 @@
     },
     "subsequent_events": {
       "type": "array",
-      "description": "Events after the reporting date that affect shares, debt or dividends.",
+      "description": "Events after the reporting date, or transactions still pending at period end, that affect shares, debt or dividends.",
       "items": {
         "type": "object",
         "required": ["date", "type", "description"],

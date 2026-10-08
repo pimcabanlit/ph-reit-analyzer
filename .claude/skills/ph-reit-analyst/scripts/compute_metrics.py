@@ -180,7 +180,7 @@ def compute(doc, prior_doc=None, annual_doc=None):
         if model == "fair_value" and fl_receivable is not None else None)
     metrics["trend"], trend_checks = trend(f, model, metrics)
     metrics["share_issuances"], issuance_checks = share_issuances(f)
-    metrics["subsequent_events"], event_flags = subsequent_events(f, metrics["share_issuances"])
+    metrics["subsequent_events"], event_flags = subsequent_events(f, metrics["share_issuances"], nav_per_share)
 
     bridge = [
         {"step": "Net income", "value": net_income, **f.source("net_income")},
@@ -346,10 +346,13 @@ def share_issuances(f):
     return out, [_check("share_issuance_table_adds_up", False, detail, review=True)]
 
 
-def subsequent_events(f, issuances):
-    """Summarize events after the reporting date; the implied swap price is derived, not disclosed."""
+def subsequent_events(f, issuances, book_nav=None):
+    """Summarize events after the reporting date (or pending at period end); the implied swap price is derived."""
     events, flags = [], []
     nav = f.get("reported_nav_per_share", required=False)
+    nav_label = "reported NAV per share"
+    if nav is None and book_nav is not None:
+        nav, nav_label = book_nav, "book NAV per share (equity / shares)"
     for e in f.doc.get("subsequent_events") or []:
         out = {"date": e["date"], "type": e["type"], "description": e["description"]}
         if e["type"] == "share_issuance" and e.get("shares") and e.get("transaction_value"):
@@ -358,11 +361,12 @@ def subsequent_events(f, issuances):
             out.update(shares=shares, transaction_value=value, implied_price_derived=implied,
                        implied_price_vs_nav=implied / nav - 1 if nav else None)
             earlier = sorted({r["issue_price"] for r in issuances})
-            vs_nav = f", {implied / nav - 1:+.1%} vs reported NAV per share {nav:.2f}" if nav else ""
+            earlier_text = f" Earlier swaps in this filing: {', '.join(f'{p:.2f}' for p in earlier)}." if earlier else ""
+            vs_nav = f", {implied / nav - 1:+.1%} vs {nav_label} {nav:.2f}" if nav else ""
             flags.append({"id": "subsequent_share_issuance", "severity": "worth_knowing",
                           "detail": f"{e['date']}: {shares:,} new shares for a transaction value of {value:,.2f}; implied price "
-                                    f"{implied:.2f} per share (derived: value / shares; not stated in the filing){vs_nav}. "
-                                    f"Earlier swaps in this filing: {', '.join(f'{p:.2f}' for p in earlier)}.",
+                                    f"{implied:.2f} per share (derived: value / shares; not stated in the filing){vs_nav}."
+                                    + earlier_text,
                           "pages": [e["shares"]["page"], e["transaction_value"]["page"]]})
         elif e["type"] == "cash_acquisition" and e.get("amount"):
             amount, cash = e["amount"]["value"], f.get("cash", required=False)

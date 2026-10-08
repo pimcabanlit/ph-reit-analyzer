@@ -1,6 +1,6 @@
 # Plan: annual reports (SEC Form 17-A)
 
-Status: Phases 1–3 done; Phase 4 (report and chart) next. Based on AREIT's 17-A for FY2025 (filed April 14,
+Status: Phases 1–4 done; Phase 5 (tests) next. Based on AREIT's 17-A for FY2025 (filed April 14,
 2026), `data/raw/areit/2025-FY-17A.pdf`. Page numbers below are PDF page
 positions.
 
@@ -111,9 +111,14 @@ reports):
       FY − 9M when a 9M facts file exists, labeled unverified
 
 ### Phase 4: report and chart
-- [ ] Annual report template: full-year answer, 3-year table, appraisal
+- [x] Annual report template: full-year answer, 3-year table, appraisal
       context, sponsor reinvestment noted qualitatively
-- [ ] Bridge chart with `period_type: year`; optional 3-year trend chart
+- [x] Bridge chart with `period_type: year`; optional 3-year trend chart
+
+Phase 4 output: `evals/gold/areit-2025-fy/report.md` and `bridge.png`
+(pending owner verification), produced from
+`data/facts/areit/2025-FY.facts.json` (86 citations verified); the report
+passes all 14 `check_report.py` checks, including the new trend-table check.
 
 ### Phase 5: tests
 - [ ] `areit-2025-fy` eval case with expected values and citations

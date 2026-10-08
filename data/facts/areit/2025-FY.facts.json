@@ -84,7 +84,9 @@
     "reported_interest_coverage": {"value": 34.73, "page": 110, "label": "Interest rate coverage ratio", "column": "2025"},
     "reported_payout_pct": {"value": 91.05, "page": 13, "label": "% of Dividends to Distributable Income", "note": "Also 91.05% on p.14."},
     "retained_earnings_available_for_dividends": {"value": 8203113397, "page": 109, "label": "available for dividend", "column": "end of the year"},
-    "dividend_declared_total_reported": {"value": 8363080842, "page": 13, "label": "Total Amount of Dividends Paid", "note": "Dividends for 2025 (Q1 to Q4, Q4 paid March 20, 2026); treated as paid within the year under RR 13-2011."}
+    "dividend_declared_total_reported": {"value": 8363080842, "page": 13, "label": "Total Amount of Dividends Paid", "note": "Dividends for 2025 (Q1 to Q4, Q4 paid March 20, 2026); treated as paid within the year under RR 13-2011."},
+    "appraisal_discount_rate_min": {"value": 8.28, "page": 80, "label": "Discount rate", "column": "2025", "note": "2025: 8.28% - 9.42%; income approach (DCF), independent appraiser (p.63)."},
+    "appraisal_discount_rate_max": {"value": 9.42, "page": 80, "label": "Discount rate", "column": "2025"}
   },
   "history": [
     {
@@ -138,6 +140,15 @@
     {
       "for_period": "2025-Q4",
       "dividend_per_share": {"value": 0.62, "page": 87, "label": "fourth quarter of 2025"}
+    }
+  ],
+  "subsequent_events": [
+    {
+      "date": "2025-12-11",
+      "type": "share_issuance",
+      "description": "Pending at year-end: property-for-share swap approved by the board (October 28, 2025) and stockholders (December 11, 2025) for Ayala Center Cebu and Ayala Malls Feliz; awaiting SEC approval as at December 31, 2025 (investment properties note).",
+      "shares": {"value": 441131656, "page": 64, "label": "441,131,656 primary common"},
+      "transaction_value": {"value": 19480000000, "page": 64, "label": "aggregate transaction value of", "rounded": true, "unit": "billion"}
     }
   ]
 }

@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pymupdf (fast page indexing) and pdfplumber (citation checks) to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.9.0
+  version: 0.10.0
 ---
 
 # PH REIT Analyst

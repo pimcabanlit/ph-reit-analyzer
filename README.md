@@ -14,7 +14,7 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 
 ## Status
 
-Version 0.9: quarterly and annual (17-A) review workflows. Q1 filings are analyzed for the
+Version 0.10: quarterly and annual (17-A) review workflows. Q1 filings are analyzed for the
 quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
 flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
 2026 from the Q2 17-Q (extracted by the skill, pending owner verification).
@@ -45,8 +45,9 @@ Put the filing in `data/raw/<ticker>/` (for example the included
 - "Is AREIT's dividend safe this quarter?"
 - "Safe ba ang dividend ng AREIT ngayong quarter?"
 
-See [`evals/gold/areit-2026-q1/report.md`](evals/gold/areit-2026-q1/report.md)
-and [`evals/gold/areit-2026-h1/report.md`](evals/gold/areit-2026-h1/report.md)
+See [`evals/gold/areit-2026-q1/report.md`](evals/gold/areit-2026-q1/report.md),
+[`evals/gold/areit-2026-h1/report.md`](evals/gold/areit-2026-h1/report.md) and
+the annual [`evals/gold/areit-2025-fy/report.md`](evals/gold/areit-2025-fy/report.md)
 for examples of the report it produces, each with its earnings bridge chart
 (`bridge.png`). The chart design follows
 [`docs/reference-bridge.png`](docs/reference-bridge.png).

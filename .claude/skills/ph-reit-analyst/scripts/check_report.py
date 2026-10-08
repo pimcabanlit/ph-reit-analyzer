@@ -14,6 +14,8 @@ Checks:
      image file exists next to the report.
   8. If metrics.json has a derived quarter, the report shows its coverage and
      labels it "derived".
+  9. If metrics.json has a trend (annual reports), the report has a
+     "Three-year trend" table with a row for every year.
 
 Usage:
     python <skill-dir>/scripts/check_report.py <report.md> --metrics <metrics.json> --facts <facts.json>
@@ -107,8 +109,8 @@ def check(report, metrics, facts, report_dir=None):
 
     values = []
     collect_numbers(metrics, values)
-    collect_numbers(facts.get("facts", {}), values)
-    collect_numbers(facts.get("dividends", []), values)
+    # Every part of the facts file (facts, dividends, history, issuances, events, ...) except meta
+    collect_numbers({k: v for k, v in facts.items() if k != "meta"}, values)
     cands = candidates(values)
     untraced = []
     for line_no, line in enumerate(report.splitlines(), 1):
@@ -146,6 +148,15 @@ def check(report, metrics, facts, report_dir=None):
         rows.append(("PASS" if shown else "FAIL", "derived quarter shown",
                      f"{dq['period']} {dq['affo_coverage']:.2f}x labeled derived" if shown
                      else f"report must show {dq['period']} coverage {dq['affo_coverage']:.2f}x and call it derived"))
+
+    trend = metrics.get("metrics", {}).get("trend")
+    if trend:
+        table_text = section(report, "## Three-year trend")
+        years = [row["year"] for row in trend]
+        missing = [y for y in years if not re.search(rf"^\|\s*{y}\b", table_text, re.M)]
+        ok = bool(table_text) and not missing
+        rows.append(("PASS" if ok else "FAIL", "trend table",
+                     f"rows for {years}" if ok else ("no '## Three-year trend' section" if not table_text else f"missing years {missing}")))
 
     n_checks = sum(c["status"] != "skipped" for c in metrics.get("checks", []))
     got = bullets(section(report, "## Checks"))

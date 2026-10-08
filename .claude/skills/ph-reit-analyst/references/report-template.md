@@ -78,6 +78,38 @@ differ when new shares are issued mid-year. Say so in one line under the table.
 For year-to-date periods (1H, 9M), say so in the title and the one-sentence
 answer.
 
+## Annual reports (17-A)
+
+Same structure, with these changes:
+
+- Title: `# <TICKER> — FY <YYYY> (January to December) review`. The one-sentence
+  answer covers the full year and says the figures are audited.
+- **From earnings to dividend:** include every bridge row in `metrics.json`,
+  including "Remove gain or loss on disposal" and "Exclude acquisitions in
+  capex" when present. When distributable income is a reference row (the
+  period has a disposal gain or loss), mark it "(reported; shown for
+  comparison)" and add one line saying REIT rules don't remove disposal gains
+  or losses. List the four quarterly dividends as in the year-to-date layout.
+- Add a section after "From earnings to dividend":
+
+  ```markdown
+  ## Three-year trend
+  | Year | Coverage (AFFO ÷ dividends) | Payout of distributable income | Book NAV per share | Dividends declared (₱M) | Distributable income (₱M) |
+  |---|---|---|---|---|---|
+  | <year> | x.xx | x.x% | ₱x.xx | x,xxx.x | x,xxx.x |
+  ```
+
+  One row per year in `metrics.trend`, oldest first. Under the table, one
+  line for anything that changes how a year reads (e.g. an acquisition
+  excluded from capex, a year whose figures disagree within the filing).
+  `check_report.py` fails if a year is missing.
+- **Other figures:** the year's payout against the REIT rule's 90% minimum
+  and the company's own figure; book NAV and the fair-value-adjusted NAV
+  (`nav_fair_value_adjusted`, with what it adjusts); price ÷ NAV saying
+  which NAV it uses; both yields; interest coverage; the share of assets not
+  at fair value; sponsor ownership; appraisal context (independent appraiser,
+  year-end, income approach, discount rate range).
+
 Tone examples:
 
 - Good: "AREIT earned ₱1.09 in cash earnings for every ₱1 it paid in dividends."
