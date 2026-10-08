@@ -46,6 +46,12 @@ confidence to low and ask before computing.
   amount of investment property) is planned for the 17-A workflow, using the
   fair value disclosure PAS 40 requires. Until then, leave NAV empty.
 
+## Gains and losses on disposal
+
+Selling a property isn't an operating result, so FFO removes any gain (and
+adds back any loss) on disposal under both models (`gain_on_property_sale`,
+signed: loss negative). AREIT FY2025 had a 6,195,989 loss on disposal.
+
 ## Adjustments common to both
 
 - **Straight-line rent:** rent recognized evenly over a lease even when actual

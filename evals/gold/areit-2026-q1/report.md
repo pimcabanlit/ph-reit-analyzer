@@ -5,7 +5,7 @@
 **Dividend safety:** green — The dividend is covered by cash earnings.
 
 ## Worth knowing
-- **One adjustment needs a second look.** The report's adjustment for rent not yet collected (₱63.7M) equals the fair value change to the peso, and doesn't match the ₱41.1M rise in uncollected rent on the balance sheet. This may be an accounting convention, but it's worth checking in the annual report.
+- **Two adjustments offset each other exactly.** The report's adjustment for rent not yet collected (₱63.7M) equals the change in the buildings' paper value to the peso. That's expected between yearly appraisals: AREIT books the two to offset each other until the next appraisal (confirmed in its annual report). The rise in uncollected rent on the balance sheet (₱41.1M) is smaller, so the straight-line figure is the better guide to rent not yet collected.
 - **Part of the revenue is owed by the sponsor group.** About 2 of every 10 pesos of revenue (19.3%) is interest on buildings leased to companies related to the sponsor (finance leases), and is often collected later. That receivable grew ₱427.9M this quarter.
 - **Cash was lent to the sponsor group.** During the quarter the REIT lent ₱794.9M to companies in its sponsor's group, equal to 31% of net income.
 

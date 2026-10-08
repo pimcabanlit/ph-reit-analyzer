@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "ticker": "AREIT",
+    "company": "AREIT, Inc.",
+    "form_type": "17-A",
+    "period_end": "2025-12-31",
+    "period_type": "year",
+    "period_label": "2025-FY",
+    "filing_date": "2026-04-14",
+    "source_file": "data/raw/areit/2025-FY-17A.pdf",
+    "accounting_model": "fair_value",
+    "accounting_model_page": 62,
+    "page_basis": "pdf_index",
+    "document_map": [
+      {
+        "document": "SEC Form 17-A (body)",
+        "pages": "1-44",
+        "has_text_layer": true
+      },
+      {
+        "document": "Audited financial statements",
+        "pages": "45-98",
+        "has_text_layer": true
+      },
+      {
+        "document": "Supplementary schedules",
+        "pages": "99-120",
+        "has_text_layer": true
+      },
+      {
+        "document": "Independent appraisal reports (39)",
+        "pages": "121-597",
+        "has_text_layer": true
+      },
+      {
+        "document": "Sponsor reinvestment reports and agreed-upon procedures",
+        "pages": "598-684",
+        "has_text_layer": false
+      },
+      {
+        "document": "Sustainability report",
+        "pages": "685-699",
+        "has_text_layer": true
+      }
+    ],
+    "extracted_by": "Claude (ph-reit-analyst skill), from the page index and the pages find_pages.py --preset annual lists",
+    "notes": "Full year 2025. Pages are PDF positions (printed numbering restarts in each part). Accrued receivables are not split out of trade receivables in the 17-A, so accrued_rent_receivable is omitted."
+  },
+  "facts": {
+    "net_income": {"value": 9539219827, "page": 56, "label": "Net income for the year", "column": "2025"},
+    "total_revenue": {"value": 12959780593, "page": 56, "label": "Revenue", "column": "2025"},
+    "rental_income": {"value": 8826839176, "page": 56, "label": "Rental income", "column": "2025"},
+    "finance_lease_interest_income": {"value": 2138795147, "page": 56, "label": "Interest income from finance lease", "column": "2025"},
+    "fair_value_change": {"value": 108679768, "page": 56, "label": "Net fair value change in investment", "column": "2025", "note": "Gain. The dividends section (p.13) labels the same amount 'Net fair value loss' because it is deducted there."},
+    "capex_investment_property": {"value": 235326916, "page": 58, "label": "Investment properties", "column": "2025", "note": "'Additions to: Investment properties' in investing activities."},
+    "operating_cash_flow": {"value": 9633275888, "page": 58, "label": "Net cash flows from operating activities", "column": "2025"},
+    "dividends_paid": {"value": 7921034294, "page": 58, "label": "Cash dividends", "column": "2025"},
+    "change_due_from_related_parties": {"value": -1269196461, "page": 58, "label": "decrease in due from related parties", "column": "2025"},
+    "total_assets": {"value": 147322393344, "page": 55, "label": "Total assets", "column": "2025"},
+    "total_liabilities": {"value": 11419593510, "page": 55, "label": "Total liabilities", "column": "2025"},
+    "total_equity": {"value": 135902799834, "page": 55, "label": "Total equity", "column": "2025"},
+    "total_debt": {"value": 2000000000, "page": 55, "label": "Short-term debt", "column": "2025"},
+    "cash": {"value": 38149890, "page": 55, "label": "Cash and cash equivalents", "column": "2025"},
+    "finance_lease_receivable": {"value": 35086452638, "page": 60, "label": "Finance lease receivables", "column": "2025"},
+    "finance_lease_receivable_prior": {"value": 19673140935, "page": 60, "label": "Finance lease receivables", "column": "2024"},
+    "straight_line_rent_adjustment": {"value": 245890088, "page": 85, "label": "Straight-lining adjustments recorded in rental", "column": "2025"},
+    "reported_distributable_income": {"value": 9184649971, "page": 85, "label": "Distributable income", "column": "2025"},
+    "mdna_net_income_before_fv_change": {"value": 9430540000, "page": 15, "label": "9,430.54 million", "rounded": true},
+    "shares_outstanding": {"value": 3715756162, "page": 67, "label": "Outstanding shares at December 31", "column": "2025"},
+    "shares_outstanding_prior": {"value": 3209865985, "page": 67, "label": "Outstanding shares at December 31", "column": "2024"},
+    "sponsor_ownership_pct": {"value": 58.45, "page": 59, "label": "58.45% collectively owned"},
+    "market_price_close": {"value": 43.5, "page": 12, "label": "Fourth Quarter", "column": "Close"},
+    "available_credit_line": {"value": 23500000000, "page": 16, "label": "available credit line", "rounded": true, "unit": "billion"},
+    "gain_on_property_sale": {"value": -6195989, "page": 58, "label": "Loss on disposal of investment properties", "column": "2025", "note": "Loss (negative). The cash flow statement adds it back."},
+    "fair_value_appraisal_gain": {"value": 432829780, "page": 63, "label": "Fair value adjustment", "column": "2025"},
+    "fair_value_straight_line_offset": {"value": -245890088, "page": 63, "label": "Straight-line adjustment", "column": "2025"},
+    "fair_value_lease_commissions": {"value": -78259924, "page": 63, "label": "Lease commissions", "column": "2025"}
+  },
+  "dividends": [
+    {
+      "for_period": "2025-Q1",
+      "dividend_per_share": {"value": 0.58, "page": 69, "label": "Q1 of 2025"},
+      "shares": {"value": 3209865985, "page": 67, "label": "Outstanding shares at December 31", "column": "2024"},
+      "reported_total": {"value": 1861720000, "page": 69, "label": "Q1 of 2025", "rounded": true}
+    },
+    {
+      "for_period": "2025-Q2",
+      "dividend_per_share": {"value": 0.59, "page": 69, "label": "Q2 of 2025"},
+      "shares": {"value": 3209865985, "page": 67, "label": "Outstanding shares at December 31", "column": "2024"},
+      "reported_total": {"value": 1893820000, "page": 69, "label": "Q2 of 2025", "rounded": true}
+    },
+    {
+      "for_period": "2025-Q3",
+      "dividend_per_share": {"value": 0.62, "page": 69, "label": "Q3 of 2025"},
+      "shares": {"value": 3715756162, "page": 67, "label": "Outstanding shares at December 31", "column": "2025"},
+      "reported_total": {"value": 2303770000, "page": 69, "label": "Q3 of 2025", "rounded": true}
+    },
+    {
+      "for_period": "2025-Q4",
+      "dividend_per_share": {"value": 0.62, "page": 87, "label": "fourth quarter of 2025"},
+      "shares": {"value": 3715756162, "page": 67, "label": "Outstanding shares at December 31", "column": "2025"},
+      "reported_total": {"value": 2303770000, "page": 87, "label": "2,303.77 million", "rounded": true}
+    }
+  ],
+  "trailing_dividends": [
+    {
+      "for_period": "2025-Q1",
+      "dividend_per_share": {"value": 0.58, "page": 69, "label": "Q1 of 2025"}
+    },
+    {
+      "for_period": "2025-Q2",
+      "dividend_per_share": {"value": 0.59, "page": 69, "label": "Q2 of 2025"}
+    },
+    {
+      "for_period": "2025-Q3",
+      "dividend_per_share": {"value": 0.62, "page": 69, "label": "Q3 of 2025"}
+    },
+    {
+      "for_period": "2025-Q4",
+      "dividend_per_share": {"value": 0.62, "page": 87, "label": "fourth quarter of 2025"}
+    }
+  ]
+}

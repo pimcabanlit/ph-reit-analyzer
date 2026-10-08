@@ -72,10 +72,11 @@ def cite(item):
 
 def ffo_affo(model, v):
     """FFO and AFFO from flow values (references/accounting-models.md)."""
+    gain = v.get("gain_on_property_sale") or 0  # gains and losses on selling property aren't operating earnings
     if model == "fair_value":
-        ffo = v["net_income"] - v["fair_value_change"]
+        ffo = v["net_income"] - v["fair_value_change"] - gain
     elif model == "cost":
-        ffo = v["net_income"] + v["real_estate_depreciation"] - (v.get("gain_on_property_sale") or 0)
+        ffo = v["net_income"] + v["real_estate_depreciation"] - gain
     else:
         raise ValueError(f"Unknown accounting model: {model}")
     affo = ffo - (v.get("straight_line_rent_adjustment") or 0) - v["capex_investment_property"]
@@ -100,8 +101,8 @@ def compute(doc, prior_doc=None):
     net_income = f.get("net_income")
     flows = {k: f.get(k, required=False) for k in DERIVED_FLOWS}
     ffo, affo = ffo_affo(model, flows)
-    ffo_method = {"fair_value": "net income minus fair value change (fair value model)",
-                  "cost": "net income plus real estate depreciation minus gains on sale (cost model)"}[model]
+    ffo_method = {"fair_value": "net income minus fair value change and gains / losses on disposal (fair value model)",
+                  "cost": "net income plus real estate depreciation minus gains / losses on disposal (cost model)"}[model]
     straight_line = flows["straight_line_rent_adjustment"] or 0
     capex = flows["capex_investment_property"]
 
@@ -178,14 +179,22 @@ def compute(doc, prior_doc=None):
         bridge.append({"step": "Remove fair value change", "value": -f.get("fair_value_change"), **f.source("fair_value_change")})
     else:
         bridge.append({"step": "Add back real estate depreciation", "value": f.get("real_estate_depreciation"), **f.source("real_estate_depreciation")})
+    if flows["gain_on_property_sale"]:
+        bridge.append({"step": "Remove gain or loss on disposal", "value": -flows["gain_on_property_sale"],
+                       **f.source("gain_on_property_sale")})
     bridge += [
         {"step": "FFO", "value": ffo, "page": None, "subtotal": True},
         {"step": "Less straight-line rent", "value": -straight_line, **f.source("straight_line_rent_adjustment")},
     ]
     if di is not None and model == "fair_value":
         # Reported figure; the distributable_income_reconciles check confirms it equals the running total
-        bridge.append({"step": "Distributable income (reported)", "value": di, **f.source("reported_distributable_income"),
-                       "subtotal": True})
+        row = {"step": "Distributable income (reported)", "value": di, **f.source("reported_distributable_income")}
+        if flows["gain_on_property_sale"]:
+            # REIT rules don't remove disposal gains / losses, so this figure is off the FFO-to-AFFO path: show it, don't reset the total
+            row["reference"] = True
+        else:
+            row["subtotal"] = True
+        bridge.append(row)
     bridge += [
         {"step": "Less capex", "value": -capex, **f.source("capex_investment_property")},
         {"step": "AFFO", "value": affo, "page": None, "subtotal": True},
@@ -419,9 +428,12 @@ def run_checks(f, ffo, nav_per_share):
 
     mdna = f.get("mdna_net_income_before_fv_change", required=False)
     if mdna is not None and f.meta["accounting_model"] == "fair_value":
-        diff = ffo - mdna
+        # The MD&A's figure is net income before the fair value change only, so compare like with like
+        # (FFO also removes disposal gains / losses)
+        before_fv = f.get("net_income") - f.get("fair_value_change")
+        diff = before_fv - mdna
         checks.append(_check("ffo_matches_mdna", abs(diff) <= ROUNDED_MILLIONS_TOLERANCE,
-                             f"FFO {ffo:,} vs MD&A {mdna:,} (diff {diff:,})", review=True))
+                             f"net income before fair value change {before_fv:,} vs MD&A {mdna:,} (diff {diff:,})", review=True))
     else:
         checks.append({"id": "ffo_matches_mdna", "status": "skipped", "detail": "No MD&A figure or not fair value model"})
 
@@ -448,6 +460,16 @@ def run_checks(f, ffo, nav_per_share):
     else:
         checks.append({"id": "dividend_total_matches_reported", "status": "skipped", "detail": "No reported total"})
 
+    parts = [f.get(k, required=False) for k in ("fair_value_appraisal_gain", "fair_value_straight_line_offset", "fair_value_lease_commissions")]
+    fv = f.get("fair_value_change", required=False)
+    if all(p is not None for p in parts) and fv is not None:
+        diff = sum(parts) - fv
+        checks.append(_check("fair_value_breakdown_adds_up", abs(diff) <= 1,
+                             f"appraisal {parts[0]:,} + straight-line offset {parts[1]:,} + lease commissions {parts[2]:,} "
+                             f"= {sum(parts):,} vs fair value change {fv:,}", review=True))
+    else:
+        checks.append({"id": "fair_value_breakdown_adds_up", "status": "skipped", "detail": "No fair value breakdown (annual reports only)"})
+
     reported_nav = f.get("reported_nav_per_share", required=False)
     if reported_nav is not None and nav_per_share is not None:
         diff = nav_per_share - reported_nav
@@ -468,10 +490,12 @@ def detect_flags(f, coverage, fl_share, issuances=()):
     if sl and fv is not None and ar is not None and ar_prior is not None:
         ar_increase = ar - ar_prior
         if abs(sl - abs(fv)) <= 1 and abs(ar_increase - sl) > STRAIGHT_LINE_MISMATCH * sl:
+            # Between appraisals the fair value change mostly offsets straight-line rent (see red-flags.md)
             flags.append({
                 "id": "straight_line_equals_fair_value_change",
-                "severity": "needs_review",
-                "detail": f"Straight-line adjustment {sl:,} equals |fair value change| {abs(fv):,}; accrued rent receivable rose {ar_increase:,}.",
+                "severity": "worth_knowing",
+                "detail": f"Straight-line adjustment {sl:,} equals |fair value change| {abs(fv):,}, consistent with the fair value "
+                          f"change offsetting straight-line rent between appraisals; accrued rent receivable rose {ar_increase:,}.",
                 "pages": [f.page("straight_line_rent_adjustment"), f.page("fair_value_change"), f.page("accrued_rent_receivable")],
             })
 

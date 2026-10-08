@@ -9,18 +9,22 @@ Severities:
 
 Thresholds below are starting assumptions. Tune them as more REITs are tested.
 
-## straight_line_equals_fair_value_change (needs_review)
+## straight_line_equals_fair_value_change (worth_knowing)
 
 - **Detect:** the straight-line rent adjustment equals the absolute fair value
   change to within ₱1, AND the increase in accrued rent receivable differs from
   that adjustment by more than 10%.
-- **Why it matters:** the two are separate concepts. An exact match suggests a
-  presentation convention (offsetting the two) rather than a measured amount,
-  so the true non-cash rent may be different.
-- **Plain wording:** "The report's adjustment for rent not yet collected equals
-  another figure to the peso, and doesn't match the change in uncollected rent
-  on the balance sheet. This may be an accounting convention, but it's worth
-  checking in the annual report."
+- **Why it matters:** it is an accounting convention, now confirmed by
+  AREIT's 17-A (investment properties note): the net fair value change is the
+  appraisal gain minus a straight-line offset and lease commissions. Between
+  annual appraisals there is little or no appraisal gain, so the fair value
+  change is mostly the straight-line offset and can equal it to the peso. The
+  change in accrued rent on the balance sheet can still differ, so the
+  non-cash rent for the period is best read from the straight-line figure.
+- **Plain wording:** "The report's adjustment for rent not yet collected
+  equals the change in the buildings' paper value to the peso. That's
+  expected between yearly appraisals: the company books the two to offset
+  each other until the next appraisal."
 
 ## sponsor_finance_lease_income (worth_knowing)
 

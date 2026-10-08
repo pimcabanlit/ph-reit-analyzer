@@ -50,6 +50,7 @@ STEP_NAMES = {
     "Add back real estate depreciation": ("+ Real estate depreciation", "− Real estate depreciation"),
     "Less straight-line rent": ("+ Straight-line rent", "− Straight-line rent"),
     "Less capex": ("+ Capex", "− Capex"),
+    "Remove gain or loss on disposal": ("+ Loss on disposal", "− Gain on disposal"),
 }
 
 
@@ -87,7 +88,10 @@ def layout(bridge, breakdown):
         if row.get("detail"):
             continue  # drawn as segments of the stacked dividend bar
         value = row["value"]
-        if row.get("comparison"):
+        if row.get("reference"):
+            # Shown for comparison; the running total carries on from the previous step
+            bars.append({"label": row["step"], "bottom": 0, "top": value, "kind": "subtotal", "text": millions(value), "reference": True})
+        elif row.get("comparison"):
             bars.append({"label": "Dividends declared" if stacked else "Dividend declared",
                          "bottom": 0, "top": value, "kind": "dividend", "text": millions(value)})
         elif running is None or row.get("subtotal"):
@@ -175,7 +179,8 @@ def draw(result, out_path):
         else:
             color = DIVIDEND[0] if b["kind"] == "dividend" else colors[b["kind"]]
             bottom = max(b["bottom"], floor)
-            ax.bar(x, b["top"] - bottom, bottom=bottom, width=0.62, color=color, edgecolor=SURFACE, linewidth=2)
+            ax.bar(x, b["top"] - bottom, bottom=bottom, width=0.62, color=color, edgecolor=SURFACE, linewidth=2,
+                   alpha=0.45 if b.get("reference") else 1, hatch="//" if b.get("reference") else None)
         ax.text(x, b["top"] + lift, b["text"], ha="center", va="bottom", color=TEXT, fontsize=10.5, weight="bold")
 
     ax.set_ylim(floor, top_all + (top_all - floor) * 0.1)
@@ -199,6 +204,9 @@ def draw(result, out_path):
               labelcolor=TEXT, fontsize=9.5, handlelength=1.1, handleheight=1.1, columnspacing=1.6)
 
     footer = [note] if note else []
+    if any(b.get("reference") for b in bars):
+        footer.append("Distributable income (reported) follows REIT rules, which don't remove gains or losses on disposal, "
+                      "so the waterfall continues from FFO less straight-line rent.")
     if dq:
         footer.append(f"{quarter_name(dq['period'])} alone is derived: {dq['derived_from'][0]} minus {dq['derived_from'][1]} "
                       f"for net income, fair value change, straight-line rent and capex.")
