@@ -4,7 +4,7 @@ description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CRE
 compatibility: Needs code execution with Python 3.9+, pymupdf (fast page indexing) and pdfplumber (citation checks) to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.7.0
+  version: 0.8.0
 ---
 
 # PH REIT Analyst
@@ -47,7 +47,7 @@ more than speed, which is why extraction and calculation are separated.
 | The user gives or asks for | Do this |
 |---|---|
 | A 17-Q quarterly report, or "is the dividend safe" for a quarter | Follow `references/workflows/quarterly-review.md`. Q2 and Q3 filings are analyzed year-to-date (see "Which period to analyze" there). |
-| A 17-A annual report | Not built yet. Say so, then offer a quarterly-style review of the annual figures, clearly labeled as partial. |
+| A 17-A annual report, or "was the dividend covered last year" | Follow `references/workflows/annual-review.md` (on top of the quarterly workflow): full-year columns, the four quarterly dividends declared for the year, audited figures first. |
 | Comparisons, total return, asset infusions | Not built yet. Say so and offer what the quarterly review can answer. |
 | A REIT question with no filing | Ask for the filing (PSE EDGE or the REIT's investor relations page). Don't answer from memory. |
 
@@ -59,7 +59,7 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
 1. **Index the filing and find the pages; never read it whole.**
    ```bash
    python <skill-dir>/scripts/index_pages.py data/raw/<ticker>/<file>.pdf
-   python <skill-dir>/scripts/find_pages.py data/raw/<ticker>/<file>.index.json --preset quarterly
+   python <skill-dir>/scripts/find_pages.py data/raw/<ticker>/<file>.index.json --preset quarterly   # or annual
    ```
    Read only the pages listed. A 17-A can be 700 pages; the facts come from
    about 30 of them.
@@ -110,6 +110,7 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
 ## References (read when the step needs them)
 
 - `references/workflows/quarterly-review.md`: step-by-step 17-Q workflow and where each fact lives
+- `references/workflows/annual-review.md`: what differs in a 17-A (columns, signs, dividends for the year, where each fact lives)
 - `references/accounting-models.md`: read before computing FFO; the model decides the formula
 - `references/red-flags.md`: each flag's detection rule and plain wording
 - `references/ph-reit-rules.md`: regulatory context (verify before citing specifics)
@@ -131,7 +132,15 @@ User says: "Safe ba ang dividend ng AREIT ngayong quarter? Nasa data/raw/areit y
 Actions: same pipeline. Reply in the user's language; the report keeps its
 English structure unless the user asks otherwise.
 
-**Example 3: asks for a recommendation**
+**Example 3: annual report**
+User says: "Review AREIT's 2025 annual report: data/raw/areit/2025-FY-17A.pdf"
+Actions: index the 699-page filing, read only the ~30 pages the annual preset
+lists, extract the full-year facts (four quarterly dividends, audited figures,
+signs from the statements), then the same compute, chart and check steps.
+Result: a full-year report citing PDF page positions, with the year's payout
+compared against the REIT rule's 90% minimum.
+
+**Example 4: asks for a recommendation**
 User says: "Should I buy MREIT?"
 Actions: explain that the skill doesn't give buy/sell advice, then offer a
 dividend-safety review if they share the latest 17-Q.

@@ -1,6 +1,6 @@
 # Plan: annual reports (SEC Form 17-A)
 
-Status: Phase 1 done; Phase 2 next. Based on AREIT's 17-A for FY2025 (filed April 14,
+Status: Phases 1 and 2 done; Phase 3 next (needs the open decisions in section 4). Based on AREIT's 17-A for FY2025 (filed April 14,
 2026), `data/raw/areit/2025-FY-17A.pdf`. Page numbers below are PDF page
 positions.
 
@@ -78,10 +78,22 @@ NAV 1.19x at the 43.50 year-end close.
       17-A's statements, dividend and fair value pages
 
 ### Phase 2: annual workflow
-- [ ] `references/workflows/annual-review.md`: where each fact sits; period
+- [x] `references/workflows/annual-review.md`: where each fact sits; period
       rules (full year; dividends declared for Q1–Q4; five-month tax timing
       rule); sign rule; using 2- and 3-year columns
-- [ ] `SKILL.md` routing for 17-A; version bump
+- [x] `SKILL.md` routing for 17-A; version bump
+
+Phase 2 findings, from a dry run of the guide's page table against the PDF
+(40 of 40 citations found; coverage 1.07x, payout 91.05% as the company
+reports):
+- The 17-A doesn't split accrued receivables out of trade receivables
+  (1,968,028,194 = the 17-Q's billed 1,245,751,587 + accrued 722,276,607);
+  the guide says to leave `accrued_rent_receivable` out.
+- Year-end share counts are in the equity note (p.67); the cover's are dated
+  February 28, 2026.
+- Fixed: compute_metrics.py crashed when a filing has a price but no
+  reported NAV per share; the chart's dividend tile overflowed with four
+  quarters.
 
 ### Phase 3: schema and metrics
 - [ ] Fair value change breakdown facts and a check that the parts add up;

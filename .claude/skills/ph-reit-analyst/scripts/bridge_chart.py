@@ -135,10 +135,18 @@ def draw(result, out_path):
     if m.get("payout_of_distributable_income") is not None:
         tiles.append(("Payout of distributable income", f"{m['payout_of_distributable_income']:.1%}",
                       ("REIT rules: at least 90% over the year", TEXT_2)))
-    dps_text = " · ".join(f"₱{b['dividend_per_share']:.2f}" for b in breakdown)
-    dps_sub = " · ".join(quarter_name(b["for_period"]) for b in breakdown) if stacked else \
-        f"× {breakdown[0]['shares'] / 1e9:.2f}B shares = ₱{millions(breakdown[0]['total'])}M"
-    tiles.append(("Dividend per share" + (" by quarter" if stacked else ""), dps_text, (dps_sub, TEXT_2)))
+    if len(breakdown) > 2:
+        # Too many quarters to fit side by side: the period's total, quarters underneath
+        dps_title, dps_text = "Dividend per share for the period", f"₱{m['dividend_per_share_for_period']:.2f}"
+        dps_sub = " · ".join(f"{quarter_name(b['for_period']).split()[0]} ₱{b['dividend_per_share']:.2f}" for b in breakdown)
+    elif stacked:
+        dps_title = "Dividend per share by quarter"
+        dps_text = " · ".join(f"₱{b['dividend_per_share']:.2f}" for b in breakdown)
+        dps_sub = " · ".join(quarter_name(b["for_period"]) for b in breakdown)
+    else:
+        dps_title, dps_text = "Dividend per share", f"₱{breakdown[0]['dividend_per_share']:.2f}"
+        dps_sub = f"× {breakdown[0]['shares'] / 1e9:.2f}B shares = ₱{millions(breakdown[0]['total'])}M"
+    tiles.append((dps_title, dps_text, (dps_sub, TEXT_2)))
     dq = m.get("derived_quarter")
     if dq and dq.get("affo_coverage") is not None:
         dl = STATUS.get(dq.get("safety_light"))

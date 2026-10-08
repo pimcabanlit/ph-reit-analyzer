@@ -536,8 +536,9 @@ def print_summary(result):
     v = m.get("valuation")
     if v:
         trailing = v["yield_trailing_four_quarters"]
-        print(f"Price {v['price']:.2f} / NAV {v['nav_per_share_reported']:.2f} = {v['price_to_nav']:.2f}x; "
-              f"yield {v['yield_latest_quarter_x4']['yield']:.2%} ({v['yield_latest_quarter_x4']['basis']})"
+        to_nav = (f"Price {v['price']:.2f} / NAV {v['nav_per_share_reported']:.2f} = {v['price_to_nav']:.2f}x; "
+                  if v["price_to_nav"] is not None else f"Price {v['price']:.2f} (no reported NAV per share); ")
+        print(to_nav + f"yield {v['yield_latest_quarter_x4']['yield']:.2%} ({v['yield_latest_quarter_x4']['basis']})"
               + (f", {trailing['yield']:.2%} (trailing four quarters)" if trailing else ""))
     if m.get("assets_not_at_fair_value_share"):
         print(f"Assets not at fair value: {m['assets_not_at_fair_value_share']['value']:.1%} "
