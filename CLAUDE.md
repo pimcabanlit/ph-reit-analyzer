@@ -16,6 +16,8 @@ here; change them there.
   - `SKILL.md`: entry point, critical rules, examples, troubleshooting
   - `references/`: accounting models, PH REIT rules, red flags, report template, workflows
   - `schemas/reit_facts.schema.json`: the contract between extraction and analysis
+  - `scripts/index_pages.py`: indexes a filing page by page (landmarks, scanned pages, cover)
+  - `scripts/find_pages.py`: finds the pages for each fact group from that index
   - `scripts/check_citations.py`: confirms every fact's label and value are on its cited PDF page
   - `scripts/validate_facts.py`: checks a facts file (runs automatically before metrics)
   - `scripts/compute_metrics.py`: FFO, AFFO, coverage, NAV, checks, flags
@@ -28,8 +30,11 @@ here; change them there.
     with the example `report.md` and its `bridge.png`
   - `fixtures/`: deliberately altered inputs for negative tests
   - `run_trigger_eval.py` + `triggers.json`: does the skill load when it should?
+  - `run_intake_eval.py` + `intake.json`: does indexing find the right pages?
 - `docs/reference-bridge.png`: target design for the bridge chart
+- `docs/plans/`: plans for larger changes (e.g. `annual-17a.md`)
 - `data/raw/<ticker>/`: source PDFs, named `<YYYY>-<period>-<form>.pdf`
+  (`*.index.json` next to them are generated and git-ignored)
 - `data/facts/<ticker>/`: extracted facts, named `<YYYY>-<period>.facts.json`
 - `outputs/<ticker>/<YYYY>-<period>/`: metrics, report, charts (git-ignored)
 
@@ -39,8 +44,9 @@ here; change them there.
 - Keep changes small. After any change to extraction, metrics or report logic,
   run `python evals/run_eval.py` on every case in `evals/` (`areit-2026-q1.json`,
   `areit-2026-h1.json`, `areit-2026-h1-restated.json`) and report what passes
-  and fails. After changing `bridge_chart.py`, regenerate the gold charts and
-  look at them.
+  and fails. After changing `index_pages.py` or `find_pages.py`, run
+  `python evals/run_intake_eval.py`. After changing `bridge_chart.py`,
+  regenerate the gold charts and look at them.
 - After changing the skill's `description`, run
   `python evals/run_trigger_eval.py` (makes one model call per prompt).
 - Keep the skill portable: no paths outside its folder, no reliance on this

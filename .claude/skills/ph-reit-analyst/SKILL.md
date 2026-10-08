@@ -1,10 +1,10 @@
 ---
 name: ph-reit-analyst
 description: Analyzes Philippine REITs listed on the PSE (AREIT, RCR, MREIT, CREIT, FILRT, DDMPR, PREIT, VREIT or any other PSE-listed REIT) from their filings, such as SEC Form 17-Q quarterly reports (PDF), 17-A annual reports and dividend declarations. Computes FFO, AFFO, dividend coverage, distributable income payout and NAV per share with page citations, runs validation checks, and flags risks like sponsor-related income or unusual adjustments. Use when the user uploads or points to a PH REIT filing, asks if a PH REIT's dividend is safe, covered or sustainable, asks about its earnings quality, valuation or sponsor dependence, or wants a REIT report explained in plain language (including in Filipino/Taglish), even without terms like FFO or AFFO. Do NOT use for non-REIT Philippine stocks, foreign REITs, live share prices, or buy/sell/hold advice.
-compatibility: Needs code execution with Python 3.9+, pdfplumber and pymupdf to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
+compatibility: Needs code execution with Python 3.9+, pymupdf (fast page indexing) and pdfplumber (citation checks) to read filing PDFs, and matplotlib for the bridge chart (pip install -r requirements.txt in this folder); the metric and check scripts use only the standard library. No network access required.
 metadata:
   author: pimcabanlit
-  version: 0.6.0
+  version: 0.7.0
 ---
 
 # PH REIT Analyst
@@ -56,15 +56,22 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
 
 ## The pipeline (details in the workflow file)
 
-1. **Extract** values into `data/facts/<ticker>/<YYYY>-<period>.facts.json`
+1. **Index the filing and find the pages; never read it whole.**
+   ```bash
+   python <skill-dir>/scripts/index_pages.py data/raw/<ticker>/<file>.pdf
+   python <skill-dir>/scripts/find_pages.py data/raw/<ticker>/<file>.index.json --preset quarterly
+   ```
+   Read only the pages listed. A 17-A can be 700 pages; the facts come from
+   about 30 of them.
+2. **Extract** values into `data/facts/<ticker>/<YYYY>-<period>.facts.json`
    following `schemas/reit_facts.schema.json`.
-2. **Check citations.** Each `label` must be exact text from the cited page,
+3. **Check citations.** Each `label` must be exact text from the cited page,
    so readers can search the PDF for it. This confirms every label and value
    is on its page:
    ```bash
    python <skill-dir>/scripts/check_citations.py data/facts/<ticker>/<YYYY>-<period>.facts.json
    ```
-3. **Validate and compute** in one step. The script refuses to calculate if
+4. **Validate and compute** in one step. The script refuses to calculate if
    the facts file breaks the schema or lacks page citations. For a Q2 or Q3
    filing it also derives the latest quarter alone when the earlier period's
    facts file of the same year sits in the same folder:
@@ -72,15 +79,15 @@ period end) before choosing. Ask the user only if the cover page doesn't settle 
    python <skill-dir>/scripts/compute_metrics.py data/facts/<ticker>/<YYYY>-<period>.facts.json \
      -o outputs/<ticker>/<YYYY>-<period>/metrics.json
    ```
-4. **Draw the earnings bridge** next to `metrics.json`:
+5. **Draw the earnings bridge** next to `metrics.json`:
    ```bash
    python <skill-dir>/scripts/bridge_chart.py outputs/<ticker>/<YYYY>-<period>/metrics.json
    ```
    It only draws what `metrics.json` contains. Look at the image before
    moving on.
-5. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
+6. **Write** `outputs/<ticker>/<YYYY>-<period>/report.md` using
    `references/report-template.md` and the wording in `references/red-flags.md`.
-6. **Check the report** and fix every FAIL before handing it over:
+7. **Check the report** and fix every FAIL before handing it over:
    ```bash
    python <skill-dir>/scripts/check_report.py outputs/<ticker>/<YYYY>-<period>/report.md \
      --metrics outputs/<ticker>/<YYYY>-<period>/metrics.json \
@@ -144,8 +151,16 @@ Solution: re-read the cited page first. If the value is right, keep it,
 mention the check in the report, and don't explain it away.
 
 **Pages return no text (scanned images)**
-Cause: some bundled pages are scans with no text layer.
-Solution: read those pages visually and mark the values `"confidence": "medium"`.
+Cause: some bundled pages are scans with no text layer (`index_pages.py`
+lists them).
+Solution: read those pages visually and mark the facts `"citation": "visual"`
+and `"confidence": "medium"`; `check_citations.py` warns instead of failing.
+
+**The filing is very large (hundreds of pages)**
+Cause: 17-As bundle appraisal reports, reinvestment reports and other
+attachments.
+Solution: never read it whole. Use `index_pages.py` and `find_pages.py`
+and read only the listed pages; cite PDF positions (`page_basis: pdf_index`).
 
 **`prior_period_mismatch` flag, no derived quarter**
 Cause: the earlier period's facts file doesn't line up with the year-to-date

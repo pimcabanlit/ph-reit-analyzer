@@ -20,7 +20,7 @@
         "source_file": {"type": "string"},
         "accounting_model": {"type": "string", "enum": ["fair_value", "cost"]},
         "accounting_model_page": {"type": "integer"},
-        "page_basis": {"type": "string", "description": "How page numbers are counted, e.g. 'printed' or 'pdf_index'."},
+        "page_basis": {"type": "string", "description": "How page numbers are counted: starts with 'printed' (the number printed on the page, when it equals the PDF position throughout, as in most 17-Qs) or 'pdf_index' (the page's position in the PDF; required for 17-As, whose printed numbering restarts). index_pages.py suggests which."},
         "document_map": {
           "type": "array",
           "description": "Page ranges of the documents bundled in the PDF.",
@@ -171,6 +171,7 @@
         "label": {"type": "string", "description": "Exact text printed on the cited page (line item name or a short phrase next to the value), so a reader can search the PDF for it. Context goes in column or note, not here. scripts/check_citations.py verifies it."},
         "column": {"type": "string", "description": "Column header the value sits under, e.g. 'January 1 to June 30, 2026' or 'December 31, 2025'."},
         "confidence": {"type": "string", "enum": ["high", "medium", "low"], "default": "high"},
+        "citation": {"type": "string", "enum": ["text", "visual"], "default": "text", "description": "'visual' when the page has no text layer and the value was read from the page image. check_citations.py can't verify it, so confidence must be medium or low."},
         "rounded": {"type": "boolean", "description": "True if the filing reported this rounded (in millions unless unit says otherwise) and it was converted to pesos."},
         "unit": {"type": "string", "enum": ["million", "billion"], "default": "million", "description": "Unit the rounded figure was printed in."},
         "note": {"type": "string"}

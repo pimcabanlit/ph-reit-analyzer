@@ -14,7 +14,7 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 
 ## Status
 
-Version 0.6: quarterly review workflow only. Q1 filings are analyzed for the
+Version 0.7: quarterly review workflow only. Q1 filings are analyzed for the
 quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
 flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
 2026 from the Q2 17-Q (extracted by the skill, pending owner verification).
@@ -69,12 +69,18 @@ python evals/run_eval.py evals/areit-2026-h1-restated.json   # restated Q1 must 
 python evals/run_eval.py evals/areit-2026-h1.json \
   --facts data/facts/areit/2026-H1.facts.json --report outputs/areit/2026-H1/report.md
 
+# Intake eval: does page indexing find the right pages in the 17-Q and the 699-page 17-A?
+python evals/run_intake_eval.py
+
 # Trigger eval: does the skill load for relevant requests and stay off otherwise?
 # Needs the claude CLI; makes one model call per prompt.
 python evals/run_trigger_eval.py
 ```
 
 The Q1 2026 filing PDF isn't in the repo, so only its analysis is tested.
+AREIT's FY2025 17-A (`data/raw/areit/2025-FY-17A.pdf`) is used to test
+large-filing intake; annual reviews are planned in
+[`docs/plans/annual-17a.md`](docs/plans/annual-17a.md).
 
 ## Disclaimer
 

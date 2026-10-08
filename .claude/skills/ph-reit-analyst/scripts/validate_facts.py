@@ -46,6 +46,11 @@ def validate(doc, schema=None):
     for key, spec in meta_schema["properties"].items():
         if key in meta and "enum" in spec and meta[key] not in spec["enum"]:
             errors.append(f"meta.{key} = {meta[key]!r}; must be one of {spec['enum']}")
+    basis = str(meta.get("page_basis", ""))
+    if basis and not basis.startswith(("printed", "pdf_index")):
+        warnings.append(f"meta.page_basis {basis!r} should start with 'printed' or 'pdf_index'")
+    if meta.get("form_type") == "17-A" and basis.startswith("printed"):
+        warnings.append("17-A filings restart their page numbering; cite PDF positions (page_basis 'pdf_index')")
     if "accounting_model_page" in meta and not isinstance(meta["accounting_model_page"], int):
         errors.append("meta.accounting_model_page must be a whole page number")
 
@@ -67,6 +72,8 @@ def validate(doc, schema=None):
         if isinstance(page, bool) or not isinstance(page, int):
             errors.append(f"{key}: needs a page citation (whole printed page number)")
         conf = item.get("confidence", "high")
+        if item.get("citation") == "visual" and conf == "high":
+            errors.append(f"{key}: read visually from a scanned page, so confidence must be medium or low")
         if conf not in confidence_values:
             errors.append(f"{key}: confidence {conf!r} must be one of {confidence_values}")
         elif conf == "low":

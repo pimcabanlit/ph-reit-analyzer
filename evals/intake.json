@@ -1,0 +1,59 @@
+{
+  "description": "Large-filing intake: index_pages.py must read each filing's cover correctly, and find_pages.py's preset must point to the pages each fact group lives on, reading only a small share of the filing.",
+  "cases": [
+    {
+      "pdf": "data/raw/areit/2026-Q2-17Q.pdf",
+      "form_type": "17-Q",
+      "period_end_text": "June 30, 2026",
+      "page_basis_hint": "printed",
+      "scanned_pages": 0,
+      "preset": "quarterly",
+      "expected_pages": {
+        "Balance sheet": 6,
+        "Income statement": 7,
+        "Cash flow statement": 9,
+        "Notes: receivables (accrued rent, finance leases)": 13,
+        "Notes: investment properties (accounting model)": 14,
+        "Notes: equity (shares, swaps, dividends)": 17,
+        "Distributable income": 18,
+        "Events after the reporting date": 21,
+        "MD&A (net income before fair value change)": 22,
+        "NAV per share and market price": 27,
+        "Corporate information (sponsor ownership)": 11,
+        "Material subsequent events (Part II / Item 14)": 29
+      },
+      "facts_covered": "evals/gold/areit-2026-h1.facts.json",
+      "max_share_of_tokens": 0.5,
+      "note": "A 17-Q's main document (pp.1-31) is ~57% of the file's tokens, so reading about half is expected; the share limit matters for large filings like the 17-A below."
+    },
+    {
+      "pdf": "data/raw/areit/2025-FY-17A.pdf",
+      "form_type": "17-A",
+      "period_end_text": "December 31, 2025",
+      "page_basis_hint": "pdf_index",
+      "scanned_pages": 44,
+      "preset": "annual",
+      "expected_pages": {
+        "Balance sheet": 55,
+        "Income statement": 56,
+        "Cash flow statement": 58,
+        "Notes: receivables (accrued rent, finance leases)": 60,
+        "Notes: investment properties (accounting model)": 62,
+        "Notes: equity (shares, swaps, dividends)": 67,
+        "Distributable income": 85,
+        "Dividends declared": 13,
+        "Events after the reporting date": 87,
+        "MD&A (net income before fair value change)": 15,
+        "Cover (shares outstanding, period)": 2,
+        "Fair value change breakdown (appraisal, straight-line, lease commissions)": 63,
+        "Fair values of financial instruments (finance lease receivables)": 85,
+        "Appraisal method and discount rates": 80,
+        "Retained earnings available for dividends": 107,
+        "Financial soundness indicators (interest coverage)": 110,
+        "Property table (valuation, occupancy)": 18,
+        "Material subsequent events (Part II / Item 14)": 40
+      },
+      "max_share_of_tokens": 0.1
+    }
+  ]
+}

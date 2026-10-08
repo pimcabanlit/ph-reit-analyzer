@@ -64,6 +64,12 @@ def check(doc, page_text):
             rows.append(("FAIL", key, f"page {index} is not in the PDF"))
             continue
         label = item.get("label")
+        if item.get("citation") == "visual":
+            if normalize(text):
+                rows.append(("WARN", key, f"marked visual but p.{item.get('page')} has a text layer; cite it as text"))
+            else:
+                rows.append(("WARN", key, f"read visually from scanned p.{item.get('page')}; not machine-checkable"))
+            continue
         if not label:
             rows.append(("FAIL", key, f"no label to search for on p.{item.get('page')}"))
         elif normalize(label) not in text:
@@ -101,7 +107,8 @@ def main():
     for status, name, detail in rows:
         print(f"  {status:<5} {name:<45} {detail}")
     fails = sum(r[0] == "FAIL" for r in rows)
-    print(f"\n{pdf_path}: {len(rows) - fails} passed, {fails} failed")
+    warns = sum(r[0] == "WARN" for r in rows)
+    print(f"\n{pdf_path}: {len(rows) - fails - warns} passed, {fails} failed, {warns} warnings")
     return 1 if fails else 0
 
 

@@ -1,6 +1,6 @@
 # Plan: annual reports (SEC Form 17-A)
 
-Status: Phase 1 in progress. Based on AREIT's 17-A for FY2025 (filed April 14,
+Status: Phase 1 done; Phase 2 next. Based on AREIT's 17-A for FY2025 (filed April 14,
 2026), `data/raw/areit/2025-FY-17A.pdf`. Page numbers below are PDF page
 positions.
 
@@ -65,16 +65,16 @@ NAV 1.19x at the 43.50 year-end close.
 - [x] Install pymupdf (already in requirements.txt)
 
 ### Phase 1: large-filing intake (helps 17-Qs too)
-- [ ] `index_pages.py`: one line per PDF page (first lines, text layer,
+- [x] `index_pages.py`: one line per PDF page (first lines, text layer,
       token estimate), consecutive pages grouped into documents; saved to a
       file, never read whole
-- [ ] `find_pages.py`: keyword search over the index for statement and note
+- [x] `find_pages.py`: keyword search over the index for statement and note
       headings
-- [ ] Citations by PDF page position for 17-As (`page_basis: "pdf_index"`);
+- [x] Citations by PDF page position for 17-As (`page_basis: "pdf_index"`);
       `visual` citation type for scanned pages, accepted with a warning
-- [ ] Workflow rule: index first, read only matched pages; warn above ~150
+- [x] Workflow rule: index first, read only matched pages; warn above ~150
       pages
-- [ ] Tests: the index finds the pages the AREIT 1H 2026 review used, and the
+- [x] Tests: the index finds the pages the AREIT 1H 2026 review used, and the
       17-A's statements, dividend and fair value pages
 
 ### Phase 2: annual workflow

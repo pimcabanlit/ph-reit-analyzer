@@ -3,18 +3,35 @@
 Goal: answer "Is this quarter's dividend backed by real cash earnings, and what
 should an investor know?" with page-cited numbers.
 
-## 1. Intake
+## 1. Intake: index first, then read only the pages you need
 
-1. Confirm the cover page: company, form type (17-Q), quarter end date.
-2. Map the pages. PSE uploads often bundle several documents in one PDF. A
-   typical AREIT 17-Q file contains the 17-Q itself (statements, notes, MD&A,
-   property table) followed by sponsor reinvestment progress reports, auditor
-   agreed-upon procedures reports, and notary pages. Record which page ranges
-   belong to which document. Use only the 17-Q pages for the facts file; note
-   the reinvestment reports for later sponsor analysis.
-3. Check which pages have a text layer (pdfplumber `extract_text()` returns
-   text) and which are scanned images. Scanned pages that matter can be read
-   visually; mark values from them `"confidence": "medium"`.
+Never read a filing whole. A 17-Q is ~30,000 tokens; a 17-A can be 700 pages
+and 300,000+ tokens, mostly appraisal reports and attachments.
+
+1. Index it (a few seconds, even for 700 pages):
+   ```bash
+   python <skill-dir>/scripts/index_pages.py data/raw/<ticker>/<file>.pdf
+   ```
+   It prints the form type and period from the cover, how to cite pages
+   (`page_basis` hint), scanned pages, runs of bundled documents (appraisals,
+   reinvestment reports) and section landmarks (statements, notes, MD&A,
+   distributable income, dividends, events after the reporting date), and
+   saves `<file>.index.json` next to the PDF. Confirm the form from "SEC FORM
+   17-Q/17-A" and the period line, not from other cover text (AREIT's 17-A
+   cover says "QUARTERLY REPORT").
+2. Find the pages for each fact group:
+   ```bash
+   python <skill-dir>/scripts/find_pages.py data/raw/<ticker>/<file>.index.json --preset quarterly
+   ```
+   Add search terms for anything else (`find_pages.py <index> "Lease commissions"`).
+   Appraisal, reinvestment and similar sections are skipped unless `--all`.
+   A note hit shows where the note continues; read through that page.
+3. Read only the listed pages (the Read tool's `pages` parameter, or the
+   page text in the index file). Record the bundled documents' page ranges in
+   `meta.document_map`; use only the main filing's pages for facts.
+4. Scanned pages (no text layer) that matter can be read visually: set
+   `"citation": "visual"` and `"confidence": "medium"` on those facts.
+   `check_citations.py` warns about them instead of failing.
 
 ## Which period to analyze
 
@@ -106,6 +123,10 @@ list, not here. Each event becomes a "worth knowing" flag.
   value as an independent appraisal: the filing describes transaction values
   as within, or validated by, a third-party fairness opinion.
 - Never estimate a market value for finance lease receivables.
+
+Set `meta.page_basis` from the index's hint: `printed` when the printed page
+numbers equal the PDF positions (most 17-Qs), otherwise `pdf_index` (always
+for a 17-A, whose numbering restarts in each section) and cite PDF positions.
 
 Each fact's `label` must be exact text from its page (the line item name, or
 a short phrase printed next to the value) so a reader can search the PDF for
