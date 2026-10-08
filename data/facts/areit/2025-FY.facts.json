@@ -86,6 +86,16 @@
     "retained_earnings_available_for_dividends": {"value": 8203113397, "page": 109, "label": "available for dividend", "column": "end of the year"},
     "dividend_declared_total_reported": {"value": 8363080842, "page": 13, "label": "Total Amount of Dividends Paid", "note": "Dividends for 2025 (Q1 to Q4, Q4 paid March 20, 2026); treated as paid within the year under RR 13-2011."}
   },
+  "history": [
+    {
+      "year": 2023,
+      "facts": {"net_income": {"value": 5030544039, "page": 56, "label": "Net income for the year", "column": "2023"}, "fair_value_change": {"value": 99254883, "page": 56, "label": "Net fair value change in investment", "column": "2023"}, "capex_investment_property": {"value": 201172225, "page": 58, "label": "Investment properties", "column": "2023"}, "operating_cash_flow": {"value": 6537792768, "page": 58, "label": "Net cash flows from operating activities", "column": "2023"}, "straight_line_rent_adjustment": {"value": 86563721, "page": 85, "label": "Straight-lining adjustments recorded in rental", "column": "2023"}, "reported_distributable_income": {"value": 4844725435, "page": 85, "label": "Distributable income", "column": "2023", "also_reported": [{"value": 4931289156, "page": 14, "label": "4,931,289,156", "column": "2023"}]}, "dividend_declared_total_reported": {"value": 4454566783, "page": 14, "label": "4,454,566,783", "note": "Dividends declared for the year (three-year table)."}, "reported_payout_pct": {"value": 90.33, "page": 14, "label": "90.33%"}, "total_equity": {"value": 83409836809, "page": 57, "label": "At December 31, 2023", "column": "2023"}, "shares_outstanding": {"value": 2368606573, "page": 67, "label": "Outstanding shares at December 31", "column": "2023"}}
+    },
+    {
+      "year": 2024,
+      "facts": {"net_income": {"value": 7317064621, "page": 56, "label": "Net income for the year", "column": "2024"}, "fair_value_change": {"value": -43374600, "page": 56, "label": "Net fair value change in investment", "column": "2024"}, "capex_investment_property": {"value": 1347523071, "page": 58, "label": "Investment properties", "column": "2024", "note": "Likely includes the January 17, 2024 cash purchase of SEDA Lio for P1,192.00 million (investment properties note, p.63), an acquisition rather than upkeep. AFFO subtracts all capex, so 2024 coverage is understated."}, "operating_cash_flow": {"value": 7299117826, "page": 58, "label": "Net cash flows from operating activities", "column": "2024"}, "straight_line_rent_adjustment": {"value": 473104893, "page": 85, "label": "Straight-lining adjustments recorded in rental", "column": "2024"}, "reported_distributable_income": {"value": 6887334328, "page": 85, "label": "Distributable income", "column": "2024", "also_reported": [{"value": 6887334328, "page": 14, "label": "6,887,334,328", "column": "2024"}]}, "dividend_declared_total_reported": {"value": 6376283904, "page": 14, "label": "6,376,283,904", "note": "Dividends declared for the year (three-year table)."}, "reported_payout_pct": {"value": 92.58, "page": 14, "label": "92.58%"}, "total_equity": {"value": 113370522522, "page": 55, "label": "Total equity", "column": "2024"}, "shares_outstanding": {"value": 3209865985, "page": 67, "label": "Outstanding shares at December 31", "column": "2024"}}
+    }
+  ],
   "dividends": [
     {
       "for_period": "2025-Q1",

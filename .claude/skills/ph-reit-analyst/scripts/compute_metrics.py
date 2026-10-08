@@ -172,6 +172,7 @@ def compute(doc, prior_doc=None):
         {"value": fl_receivable / assets, "basis": "finance lease receivables / total assets",
          "finance_lease_receivable": fl_receivable, "total_assets": assets}
         if model == "fair_value" and fl_receivable is not None else None)
+    metrics["trend"], trend_checks = trend(f, model, metrics)
     metrics["share_issuances"], issuance_checks = share_issuances(f)
     metrics["subsequent_events"], event_flags = subsequent_events(f, metrics["share_issuances"])
 
@@ -218,7 +219,7 @@ def compute(doc, prior_doc=None):
         "metrics": metrics,
         "bridge": bridge,
         "checks": run_checks(f, ffo, nav_per_share) + annual_checks(f, breakdown, dividend_total, payout_di)
-                  + [consistency_check(doc)] + derived_checks + issuance_checks,
+                  + [consistency_check(doc)] + derived_checks + issuance_checks + trend_checks,
         "flags": detect_flags(f, coverage, fl_share, metrics["share_issuances"]) + derived_flags + event_flags,
     }
 
@@ -367,6 +368,42 @@ def subsequent_events(f, issuances):
                           "detail": f"{e['date']}: {e['description']}", "pages": []})
         events.append(out)
     return events, flags
+
+
+def trend(f, model, metrics):
+    """Year-by-year FFO, AFFO, coverage, payout and book NAV from the history list plus the current year."""
+    history = f.doc.get("history") or []
+    if not history or f.meta.get("period_type") != "year":
+        return None, []
+    rows, problems = [], []
+    for entry in sorted(history, key=lambda e: e["year"]):
+        v = {k: item["value"] for k, item in entry["facts"].items()}
+        row = {"year": entry["year"], "ffo": None, "affo": None, "coverage": None, "payout": None, "nav_book": None,
+               "dividends": v.get("dividend_declared_total_reported"),
+               "distributable_income": v.get("reported_distributable_income")}
+        try:
+            row["ffo"], row["affo"] = ffo_affo(model, v)
+        except KeyError:
+            pass  # not enough items for that year
+        if row["affo"] is not None and row["dividends"]:
+            row["coverage"] = row["affo"] / row["dividends"]
+        if row["dividends"] and row["distributable_income"]:
+            row["payout"] = row["dividends"] / row["distributable_income"]
+        if v.get("total_equity") and v.get("shares_outstanding") and model == "fair_value":
+            row["nav_book"] = v["total_equity"] / v["shares_outstanding"]
+        reported = v.get("reported_payout_pct")
+        if reported is not None and row["payout"] is not None and abs(row["payout"] * 100 - reported) > 0.005:
+            problems.append(f"{entry['year']}: computed payout {row['payout']:.2%} vs reported {reported:.2f}%")
+        rows.append(row)
+    m = metrics
+    rows.append({"year": int(f.meta["period_end"][:4]), "ffo": m["ffo"], "affo": m["affo"], "coverage": m["affo_coverage"],
+                 "payout": m["payout_of_distributable_income"], "nav_book": m["nav_per_share"],
+                 "dividends": m["dividend_declared_total"], "distributable_income": f.get("reported_distributable_income", required=False)})
+    if problems:
+        check = _check("history_payout_matches_reported", False, "; ".join(problems), review=True)
+    else:
+        check = _check("history_payout_matches_reported", True, f"reported payouts agree for {len(history)} earlier years")
+    return rows, [check]
 
 
 def annual_checks(f, breakdown, dividend_total, payout):
@@ -670,6 +707,11 @@ def print_summary(result):
     if m.get("assets_not_at_fair_value_share"):
         print(f"Assets not at fair value: {m['assets_not_at_fair_value_share']['value']:.1%} "
               f"({m['assets_not_at_fair_value_share']['basis']})")
+    if m.get("trend"):
+        print("Trend:   year   coverage   payout   book NAV")
+        for row in m["trend"]:
+            fmt = lambda v, spec: format(v, spec) if v is not None else "-"  # noqa: E731
+            print(f"         {row['year']}   {fmt(row['coverage'], '.2f'):>7}x  {fmt(row['payout'], '.1%'):>7}   {fmt(row['nav_book'], '.2f'):>7}")
     dq = m.get("derived_quarter")
     if dq and dq["affo_coverage"] is not None:
         print(f"Standalone {dq['period']} (derived): AFFO {dq['affo'] / 1e6:,.1f}M, "

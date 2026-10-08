@@ -106,6 +106,12 @@ def validate(doc, schema=None):
     if dividends is None and "dividend_per_share_declared" not in facts:
         errors.append("No dividend: add facts.dividend_per_share_declared, or a dividends list for multi-quarter periods")
 
+    for i, entry in enumerate(doc.get("history", []), 1):
+        if not isinstance(entry.get("year"), int):
+            errors.append(f"history[{i}]: year must be a whole number")
+        for key, item in entry.get("facts", {}).items():
+            check_fact(f"history {entry.get('year', '?')}.{key}", item)
+
     for section in ("trailing_dividends", "share_issuances", "share_issuance_totals", "subsequent_events"):
         entries = doc.get(section, [])
         spec = schema["properties"][section]["items"]

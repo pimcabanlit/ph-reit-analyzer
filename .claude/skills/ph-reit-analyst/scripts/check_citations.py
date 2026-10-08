@@ -52,6 +52,9 @@ def iter_facts(doc, with_also_reported=False):
 def _iter_main(doc):
     for key, item in doc.get("facts", {}).items():
         yield key, item
+    for entry in doc.get("history", []):
+        for key, item in entry.get("facts", {}).items():
+            yield f"history {entry.get('year', '?')} {key}", item
     for section, name_key in (("dividends", "for_period"), ("trailing_dividends", "for_period"),
                               ("share_issuances", "property"), ("share_issuance_totals", "year"),
                               ("subsequent_events", "date")):

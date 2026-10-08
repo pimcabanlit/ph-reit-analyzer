@@ -129,6 +129,25 @@ Context worth a sentence in the report, from the same pages:
   reports (e.g. Vertis 16,698 = its three tower appraisals). Unlike a 17-Q's
   property table, it is appraisal-based. Don't scrape the appraisal reports.
 
+## 4b. Earlier years (`history`)
+
+Fill `history` with one entry per earlier year from the comparative columns
+(AREIT FY2025: 2024 and 2023 from the income statement p.56, cash flows p.58,
+distributable income p.85; the dividends section's three-year table p.14 for
+dividends declared and the stated payout; equity from the balance sheet p.55
+or the statement of changes in equity p.57; shares from the equity note
+p.67). `compute_metrics.py` turns it into a year-by-year `trend` (coverage,
+payout, book NAV) and checks each year's stated payout.
+
+Watch for:
+- **Acquisitions inside capex.** "Additions to investment properties" can
+  include buying a building for cash (AREIT 2024: SEDA Lio, P1,192.00 million,
+  p.63), which makes that year's coverage look worse than the upkeep spending
+  justifies. Note it on the fact and say so next to the trend.
+- **Figures that disagree between the three-year table and the audited
+  note.** Put the other figure in `also_reported`; the consistency check
+  reports it (AREIT 2023 distributable income: p.14 vs p.85).
+
 ## 5. Compute, chart, report, check
 
 Same commands as the quarterly review, with `<YYYY>-FY` as the period:
@@ -152,13 +171,4 @@ Report differences from the quarterly template:
 
 These are planned (see the repo's plan) and must not be computed in prose
 meanwhile:
-- Adding back gains and losses on property disposals in FFO (AREIT FY2025
-  had a 6,195,989 loss, p.58). Mention it as a known limitation if material.
-- Fair-value-adjusted NAV from the disclosed fair value of finance lease
-  receivables (AREIT: 41,001,398,588 vs carrying 35,086,452,638, p.85).
-- Automatic checks for figures that disagree within the filing, the 90% rule
-  and retained earnings available for dividends.
-- A three-year trend from the comparative columns, and Q4 derived as full
-  year minus nine months.
-- Price ÷ NAV when the 17-A reports no NAV per share (AREIT's doesn't);
-  `valuation` then shows only the yields.
+- Q4 derived as full year minus nine months.

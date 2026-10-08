@@ -96,6 +96,22 @@
         "sponsor_ownership_pct": {"$ref": "#/$defs/fact"}
       }
     },
+    "history": {
+      "type": "array",
+      "description": "Annual reports: earlier years from the comparative columns (income statement and cash flows show three years, the balance sheet two), for a trend. One entry per year; the current year comes from the main facts.",
+      "items": {
+        "type": "object",
+        "required": ["year", "facts"],
+        "properties": {
+          "year": {"type": "integer"},
+          "facts": {
+            "type": "object",
+            "description": "Any of: net_income, fair_value_change, gain_on_property_sale, straight_line_rent_adjustment, capex_investment_property, operating_cash_flow, reported_distributable_income, dividend_declared_total_reported (dividends declared for that year), reported_payout_pct, total_equity, shares_outstanding.",
+            "additionalProperties": {"$ref": "#/$defs/fact"}
+          }
+        }
+      }
+    },
     "trailing_dividends": {
       "type": "array",
       "description": "Dividend per share declared for each of the last four quarters up to and including the latest quarter, for the trailing yield.",
