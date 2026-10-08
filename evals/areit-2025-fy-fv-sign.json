@@ -1,0 +1,25 @@
+{
+  "id": "areit-2025-fy-fv-sign",
+  "description": "Negative test: the fair value change signed as the dividends section labels it ('Net fair value loss', p.13) instead of the income statement's gain (p.56). The citation check can't catch it (the amount is printed on the page); four analysis checks must.",
+  "input_pdf": "data/raw/areit/2025-FY-17A.pdf",
+  "gold_facts": "evals/fixtures/areit-2025-fy-fv-sign.facts.json",
+  "expected_metrics": {
+    "dividend_declared_total": {"value": 8363080842, "tolerance": 1}
+  },
+  "expected_checks_pass": [
+    "balance_sheet_balances",
+    "dividend_total_matches_reported"
+  ],
+  "expected_checks_review": [
+    "ffo_matches_mdna",
+    "distributable_income_reconciles",
+    "fair_value_breakdown_adds_up",
+    "interest_coverage_matches_reported"
+  ],
+  "expected_flags": [
+    "sponsor_finance_lease_income",
+    "related_party_lending",
+    "shares_issued_in_period",
+    "subsequent_share_issuance"
+  ]
+}

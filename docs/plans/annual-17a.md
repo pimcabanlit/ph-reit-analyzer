@@ -1,6 +1,6 @@
 # Plan: annual reports (SEC Form 17-A)
 
-Status: Phases 1–4 done; Phase 5 (tests) next. Based on AREIT's 17-A for FY2025 (filed April 14,
+Status: all phases done. Remaining: owner verification of the FY2025 and 1H 2026 gold facts. Based on AREIT's 17-A for FY2025 (filed April 14,
 2026), `data/raw/areit/2025-FY-17A.pdf`. Page numbers below are PDF page
 positions.
 
@@ -121,10 +121,10 @@ Phase 4 output: `evals/gold/areit-2025-fy/report.md` and `bridge.png`
 passes all 14 `check_report.py` checks, including the new trend-table check.
 
 ### Phase 5: tests
-- [ ] `areit-2025-fy` eval case with expected values and citations
-- [ ] Negative fixtures: fair value sign from the p.13 label; mismatched 2023
+- [x] `areit-2025-fy` eval case with expected values and citations
+- [x] Negative fixtures: fair value sign from the p.13 label; mismatched 2023
       distributable income; wrong mid-year share count on one dividend
-- [ ] Trigger prompts for annual-report requests
+- [x] Trigger prompts for annual-report requests
 
 Out of scope: scraping all appraisal reports, governance and compensation,
 sustainability, numbers from scanned sponsor pages.

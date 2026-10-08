@@ -43,8 +43,9 @@ here; change them there.
 - Propose a plan before large changes and wait for approval.
 - Keep changes small. After any change to extraction, metrics or report logic,
   run `python evals/run_eval.py` on every case in `evals/` (`areit-2026-q1.json`,
-  `areit-2026-h1.json`, `areit-2026-h1-restated.json`) and report what passes
-  and fails. After changing `index_pages.py` or `find_pages.py`, run
+  `areit-2026-h1.json`, `areit-2026-h1-restated.json`, `areit-2025-fy.json`,
+  `areit-2025-fy-fv-sign.json`, `areit-2025-fy-shares.json`) and report what
+  passes and fails. After changing `index_pages.py` or `find_pages.py`, run
   `python evals/run_intake_eval.py`. After changing `bridge_chart.py`,
   regenerate the gold charts and look at them.
 - After changing the skill's `description`, run

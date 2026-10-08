@@ -5,6 +5,7 @@
   "gold_facts": "evals/gold/areit-2026-h1.facts.json",
   "gold_report": "evals/gold/areit-2026-h1/report.md",
   "prior_facts": "evals/gold/areit-2026-q1.facts.json",
+  "annual_facts": "evals/gold/areit-2025-fy.facts.json",
   "expected_metrics": {
     "ffo": {"value": 5829570711, "tolerance": 1},
     "affo": {"value": 5518976185, "tolerance": 1},
@@ -36,7 +37,8 @@
     "distributable_income_reconciles",
     "dividend_total_matches_reported",
     "nav_matches_reported",
-    "derived_quarter_matches_filing"
+    "derived_quarter_matches_filing",
+    "matches_prior_annual_report"
   ],
   "expected_flags": [
     "sponsor_finance_lease_income",

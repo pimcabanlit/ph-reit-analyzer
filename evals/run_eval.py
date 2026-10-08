@@ -94,8 +94,11 @@ def compare_analysis(result, case):
     m = result["metrics"]
     for key, exp in case["expected_metrics"].items():
         got = m
-        for part in key.split("."):  # e.g. derived_quarter.affo_coverage
-            got = got.get(part) if isinstance(got, dict) else None
+        for part in key.split("."):  # e.g. derived_quarter.affo_coverage, trend.0.coverage
+            if isinstance(got, list) and part.isdigit():
+                got = got[int(part)] if int(part) < len(got) else None
+            else:
+                got = got.get(part) if isinstance(got, dict) else None
         if exp.get("value", 0) is None:
             rows.append(("PASS" if got is None else "FAIL", f"metric {key}", f"{got} (expected none)"))
         elif got is None:
@@ -156,7 +159,8 @@ def main():
             rows += compare_extraction(facts_doc, gold_doc)
         rows += citation_rows(facts_doc, Path(case["input_pdf"]))
         prior_doc = json.loads(Path(case["prior_facts"]).read_text()) if case.get("prior_facts") else None
-        result = compute(facts_doc, prior_doc)
+        annual_doc = json.loads(Path(case["annual_facts"]).read_text()) if case.get("annual_facts") else None
+        result = compute(facts_doc, prior_doc, annual_doc)
         rows += compare_analysis(result, case)
         report_path = args.report or (Path(case["gold_report"]) if case.get("gold_report") else None)
         if report_path:

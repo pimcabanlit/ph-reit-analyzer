@@ -12,7 +12,10 @@
     "What's the NAV per share of CREIT based on this filing?",
     "Is VREIT's earnings quality good or is it mostly fair value gains?",
     "Sustainable ba yung dividend ng Citicore REIT? May 17-Q ako dito.",
-    "Check if Ayala's REIT is paying out more than it earns this quarter."
+    "Check if Ayala's REIT is paying out more than it earns this quarter.",
+    "Review AREIT's 2025 annual report (17-A): data/raw/areit/2025-FY-17A.pdf",
+    "Did AREIT pay out at least 90% of its distributable income last year?",
+    "Basahin mo yung 17-A ng AREIT para sa 2025 at sabihin kung sapat ang cash para sa dividends nila."
   ],
   "should_not_trigger": [
     "What's the weather in Manila today?",
@@ -24,7 +27,8 @@
     "Summarize this BDO annual report.",
     "What is a REIT? Give me a general definition.",
     "Compare Singapore REITs CapitaLand Integrated and Mapletree Pan Asia.",
-    "How do I file my BIR income tax return?"
+    "How do I file my BIR income tax return?",
+    "Summarize Ayala Land's 2025 annual report and its residential sales."
   ],
-  "notes": "Should-trigger includes paraphrases, Filipino/Taglish, and company names instead of tickers. Should-not-trigger covers non-REIT PH stocks, foreign REITs, live prices, buy/sell advice and generic REIT definitions. 'Should I buy MREIT' is borderline: the description excludes buy/sell advice, so not triggering is the expected behavior."
+  "notes": "Should-trigger includes paraphrases, Filipino/Taglish, and company names instead of tickers. Should-not-trigger covers non-REIT PH stocks, foreign REITs, live prices, buy/sell advice and generic REIT definitions. 'Should I buy MREIT' is borderline: the description excludes buy/sell advice, so not triggering is the expected behavior. Annual prompts (17-A, 90% rule, Filipino) added with the annual workflow; Ayala Land is AREIT's sponsor but not a REIT, so its annual report should not trigger."
 }

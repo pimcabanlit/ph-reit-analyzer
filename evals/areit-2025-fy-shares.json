@@ -1,0 +1,24 @@
+{
+  "id": "areit-2025-fy-shares",
+  "description": "Negative test: the Q1 2025 dividend on the year-end share count instead of its record-date count (missing the September 2025 swap). Citations pass (the number is printed on p.67); the dividend-total and company-payout checks must catch it, and coverage drops to yellow.",
+  "input_pdf": "data/raw/areit/2025-FY-17A.pdf",
+  "gold_facts": "evals/fixtures/areit-2025-fy-shares.facts.json",
+  "expected_metrics": {
+    "safety_light": {"value": "yellow"}
+  },
+  "expected_checks_pass": [
+    "balance_sheet_balances",
+    "distributable_income_reconciles",
+    "annual_distribution_rule"
+  ],
+  "expected_checks_review": [
+    "dividend_total_matches_reported",
+    "payout_matches_reported"
+  ],
+  "expected_flags": [
+    "sponsor_finance_lease_income",
+    "related_party_lending",
+    "shares_issued_in_period",
+    "subsequent_share_issuance"
+  ]
+}

@@ -17,7 +17,8 @@ checks, and flags issues worth a closer look. It never gives buy/sell advice.
 Version 0.10: quarterly and annual (17-A) review workflows. Q1 filings are analyzed for the
 quarter; Q2 and Q3 filings year-to-date, because the 17-Q only reports cash
 flows year-to-date. Test cases: AREIT Q1 2026 (hand-verified) and AREIT 1H
-2026 from the Q2 17-Q (extracted by the skill, pending owner verification).
+2026 from the Q2 17-Q, and AREIT FY2025 from the 17-A (both extracted by the
+skill, pending owner verification).
 For Q2 and Q3 filings the latest quarter alone is also derived when the
 earlier period's facts file is available, and labeled "derived".
 
@@ -65,6 +66,9 @@ python $SKILL/scripts/bridge_chart.py outputs/areit/2026-H1/metrics.json
 python evals/run_eval.py evals/areit-2026-q1.json
 python evals/run_eval.py evals/areit-2026-h1.json            # also derives standalone Q2
 python evals/run_eval.py evals/areit-2026-h1-restated.json   # restated Q1 must block the derivation
+python evals/run_eval.py evals/areit-2025-fy.json            # annual: 699-page 17-A, three-year trend
+python evals/run_eval.py evals/areit-2025-fy-fv-sign.json    # fair value sign from the wrong label must be caught
+python evals/run_eval.py evals/areit-2025-fy-shares.json     # wrong mid-year share count must be caught
 
 # Test a facts file or report produced by the skill against the gold answers
 python evals/run_eval.py evals/areit-2026-h1.json \

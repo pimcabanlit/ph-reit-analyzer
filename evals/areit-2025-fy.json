@@ -1,0 +1,64 @@
+{
+  "id": "areit-2025-fy",
+  "description": "AREIT annual review, fiscal year 2025 (SEC Form 17-A filed April 14, 2026; 699 pages, cited by PDF position). Tests the annual workflow: four quarterly dividends on two share counts, disposal loss added back, fair value breakdown, 90% rule, retained earnings for dividends, interest coverage, fair-value-adjusted NAV, three-year trend with the 2024 SEDA Lio purchase excluded from capex, and the filing's own 2023 inconsistency. Gold facts are PENDING owner verification.",
+  "input_pdf": "data/raw/areit/2025-FY-17A.pdf",
+  "gold_facts": "evals/gold/areit-2025-fy.facts.json",
+  "gold_report": "evals/gold/areit-2025-fy/report.md",
+  "expected_metrics": {
+    "ffo": {"value": 9436736048, "tolerance": 1},
+    "affo": {"value": 8955519044, "tolerance": 1},
+    "dividend_declared_total": {"value": 8363080842, "tolerance": 1},
+    "dividend_per_share_for_period": {"value": 2.41, "tolerance": 0.0001},
+    "affo_coverage": {"value": 1.0708, "tolerance": 0.0005},
+    "payout_of_distributable_income": {"value": 0.9105, "tolerance": 0.0005},
+    "nav_per_share": {"value": 36.57, "tolerance": 0.01},
+    "nav_fair_value_adjusted.value": {"value": 38.17, "tolerance": 0.01},
+    "nav_fair_value_adjusted.adjustment": {"value": 5914945950, "tolerance": 1},
+    "interest_coverage.value": {"value": 34.73, "tolerance": 0.005},
+    "finance_lease_share_of_revenue": {"value": 0.165, "tolerance": 0.001},
+    "assets_not_at_fair_value_share.value": {"value": 0.2382, "tolerance": 0.0005},
+    "valuation.price_to_nav": {"value": 1.1893, "tolerance": 0.0005},
+    "valuation.yield_latest_quarter_x4.yield": {"value": 0.057, "tolerance": 0.0001},
+    "valuation.yield_trailing_four_quarters.yield": {"value": 0.0554, "tolerance": 0.0001},
+    "trend.0.year": {"value": 2023},
+    "trend.0.coverage": {"value": 1.0424, "tolerance": 0.0005},
+    "trend.0.payout": {"value": 0.9195, "tolerance": 0.0005},
+    "trend.0.nav_book": {"value": 35.21, "tolerance": 0.01},
+    "trend.1.year": {"value": 2024},
+    "trend.1.coverage": {"value": 1.0558, "tolerance": 0.0005},
+    "trend.1.payout": {"value": 0.9258, "tolerance": 0.0005},
+    "trend.1.nav_book": {"value": 35.32, "tolerance": 0.01},
+    "trend.2.year": {"value": 2025},
+    "trend.2.coverage": {"value": 1.0708, "tolerance": 0.0005},
+    "safety_light": {"value": "green"},
+    "derived_quarter": {"value": null}
+  },
+  "expected_checks_pass": [
+    "balance_sheet_balances",
+    "ffo_matches_mdna",
+    "distributable_income_reconciles",
+    "dividend_total_matches_reported",
+    "fair_value_breakdown_adds_up",
+    "interest_coverage_matches_reported",
+    "annual_distribution_rule",
+    "payout_matches_reported",
+    "dividends_within_retained_earnings"
+  ],
+  "expected_checks_review": [
+    "figures_consistent_within_filing",
+    "history_payout_matches_reported"
+  ],
+  "expected_flags": [
+    "sponsor_finance_lease_income",
+    "related_party_lending",
+    "shares_issued_in_period",
+    "subsequent_share_issuance"
+  ],
+  "expected_subsequent_events": [
+    {"type": "share_issuance", "shares": 441131656, "transaction_value": 19480000000, "implied_price_derived": 44.15915234158575}
+  ],
+  "skill_test_prompts": [
+    "Review AREIT's 2025 annual report: data/raw/areit/2025-FY-17A.pdf",
+    "Did AREIT pay out at least 90% of its distributable income in 2025? The 17-A is in data/raw/areit/."
+  ]
+}
